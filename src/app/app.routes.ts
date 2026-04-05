@@ -40,7 +40,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'agenda-pagos',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/payments-agenda').then((m) => m.PaymentsAgendaPage),
 			},
 			{
 				path: 'contactos-proveedores',

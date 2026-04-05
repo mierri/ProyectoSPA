@@ -151,6 +151,16 @@ body {
 	width: min(94vw, 720px) !important;
 	max-width: min(94vw, 720px) !important;
 }
+
+[data-slot='dialog-content'].payment-dialog-content {
+	width: min(92vw, 800px) !important;
+	max-width: min(92vw, 800px) !important;
+}
+
+[data-slot='dialog-content'].photo-dialog-content {
+	width: min(90vw, 700px) !important;
+	max-width: min(90vw, 700px) !important;
+}
 }
 
 .wo-chip {
