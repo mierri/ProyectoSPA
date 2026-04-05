@@ -1,0 +1,82 @@
+@if (order(); as ot) {
+	<div class="space-y-4">
+		<section class="grid gap-4 xl:grid-cols-2">
+			<hlm-card>
+				<hlm-card-header>
+					<h3 hlmCardTitle>Refacciones e inventario</h3>
+					<p hlmCardDescription>Agregar refacciones a la cotizacion con busqueda.</p>
+				</hlm-card-header>
+				<div hlmCardContent class="space-y-3">
+					<hlm-combobox [value]="selectedPart()" (valueChange)="onPartSelected($event)" [itemToString]="partItemToString">
+						<hlm-combobox-trigger class="w-full"><hlm-combobox-value placeholder="Buscar refaccion..." /></hlm-combobox-trigger>
+						<hlm-combobox-content *hlmComboboxPortal>
+							<hlm-combobox-input placeholder="Buscar refaccion..." />
+							<div hlmComboboxList>
+								<hlm-combobox-empty>Sin coincidencias</hlm-combobox-empty>
+								<div hlmComboboxGroup>
+									@for (part of ot.catalogoRefacciones; track part.id) {
+										<hlm-combobox-item [value]="part">{{ part.nombre }} (Stock: {{ part.stock }})</hlm-combobox-item>
+									}
+								</div>
+							</div>
+						</hlm-combobox-content>
+					</hlm-combobox>
+					<div class="flex justify-end"><button hlmBtn type="button" size="sm" (click)="assignSelectedPart()" [disabled]="!selectedPart()">Agregar refaccion</button></div>
+					<div hlmTableContainer>
+						<table hlmTable>
+							<thead hlmTHead><tr hlmTr><th hlmTh>Refaccion</th><th hlmTh>Cantidad</th><th hlmTh>Costo Unitario</th></tr></thead>
+							<tbody hlmTBody>
+								@for (part of ot.refaccionesAsignadas; track part.id) {
+									<tr hlmTr><td hlmTd>{{ part.nombre }}</td><td hlmTd>{{ part.cantidad }}</td><td hlmTd>${{ part.costoUnitario | number : '1.0-0' }}</td></tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</hlm-card>
+
+			<hlm-card>
+				<hlm-card-header>
+					<h3 hlmCardTitle>Servicios (lista de precios)</h3>
+					<p hlmCardDescription>Agregar servicios a la cotizacion con busqueda.</p>
+				</hlm-card-header>
+				<div hlmCardContent class="space-y-3">
+					<hlm-combobox [value]="selectedService()" (valueChange)="onServiceSelected($event)" [itemToString]="serviceItemToString">
+						<hlm-combobox-trigger class="w-full"><hlm-combobox-value placeholder="Buscar servicio..." /></hlm-combobox-trigger>
+						<hlm-combobox-content *hlmComboboxPortal>
+							<hlm-combobox-input placeholder="Buscar servicio..." />
+							<div hlmComboboxList>
+								<hlm-combobox-empty>Sin coincidencias</hlm-combobox-empty>
+								<div hlmComboboxGroup>
+									@for (service of ot.catalogoServicios; track service.id) {
+										<hlm-combobox-item [value]="service">{{ service.nombre }} - ${{ service.precio | number : '1.0-0' }}</hlm-combobox-item>
+									}
+								</div>
+							</div>
+						</hlm-combobox-content>
+					</hlm-combobox>
+					<div class="flex justify-end"><button hlmBtn type="button" size="sm" (click)="assignSelectedService()" [disabled]="!selectedService()">Agregar servicio</button></div>
+					<div hlmTableContainer>
+						<table hlmTable>
+							<thead hlmTHead><tr hlmTr><th hlmTh>Servicio</th><th hlmTh>Precio</th></tr></thead>
+							<tbody hlmTBody>
+								@for (service of ot.serviciosAsignados; track service.id) {
+									<tr hlmTr><td hlmTd>{{ service.nombre }}</td><td hlmTd>${{ service.precio | number : '1.0-0' }}</td></tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</hlm-card>
+		</section>
+
+		<hlm-card>
+			<hlm-card-header><h3 hlmCardTitle>Total cotizacion</h3></hlm-card-header>
+			<div hlmCardContent class="space-y-2 text-sm">
+				<p>Subtotal refacciones: <strong>${{ totalRefacciones() | number : '1.0-0' }}</strong></p>
+				<p>Subtotal servicios: <strong>${{ totalServicios() | number : '1.0-0' }}</strong></p>
+				<p class="text-base">Total cotizacion: <strong>${{ totalCotizacion() | number : '1.0-0' }}</strong></p>
+			</div>
+		</hlm-card>
+	</div>
+}

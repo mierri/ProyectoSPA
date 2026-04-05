@@ -1,0 +1,116 @@
+<hlm-card>
+	<hlm-card-header class="header-wrap">
+		<div>
+			<h3 hlmCardTitle>Partes en venta</h3>
+			<p hlmCardDescription>Control de stock de refacciones para venta y uso en OT.</p>
+		</div>
+		<button hlmBtn size="sm" type="button" variant="outline" (click)="showCreateForm.set(!showCreateForm())">
+			{{ showCreateForm() ? 'Cancelar' : 'Agregar parte en venta' }}
+		</button>
+	</hlm-card-header>
+	<div hlmCardContent class="space-y-4">
+		@if (showCreateForm()) {
+			<div class="adjust-row">
+				<label class="field"><span>Nombre</span><input hlmInput [value]="createNombre()" (input)="createNombre.set(($any($event.target)).value)" /></label>
+				<label class="field">
+					<span>Estado</span>
+					<hlm-select [value]="createEstado()" (valueChange)="onCreateConditionChange(($event ?? '') + '')">
+						<hlm-select-trigger><hlm-select-value /></hlm-select-trigger>
+						<hlm-select-content *hlmSelectPortal>
+							<hlm-select-group>
+								@for (condition of conditions; track condition) {
+									<hlm-select-item [value]="condition">{{ condition }}</hlm-select-item>
+								}
+							</hlm-select-group>
+						</hlm-select-content>
+					</hlm-select>
+				</label>
+				<label class="field"><span>Responsable</span><input hlmInput [value]="createResponsable()" (input)="createResponsable.set(($any($event.target)).value)" /></label>
+				<label class="field"><span>Stock actual</span><input hlmInput type="number" [value]="createStockActual()" (input)="createStockActual.set(+($any($event.target)).value || 0)" /></label>
+				<label class="field"><span>Stock minimo</span><input hlmInput type="number" [value]="createStockMinimo()" (input)="createStockMinimo.set(+($any($event.target)).value || 0)" /></label>
+				<label class="field"><span>Precio venta</span><input hlmInput type="number" [value]="createPrecio()" (input)="createPrecio.set(+($any($event.target)).value || 0)" /></label>
+				<label class="field md:col-span-2">
+					<span>linkedPartId (opcional para OT)</span>
+					<input hlmInput [value]="createLinkedPartId()" (input)="createLinkedPartId.set(($any($event.target)).value)" />
+				</label>
+				<label class="field md:col-span-2"><span>Descripcion</span><input hlmInput [value]="createDescripcion()" (input)="createDescripcion.set(($any($event.target)).value)" /></label>
+				<label class="field md:col-span-2"><span>Foto</span><input hlmInput type="file" accept="image/*" (change)="onPhotoSelected($event)" /></label>
+				<div class="md:col-span-2 flex justify-end"><button hlmBtn size="sm" type="button" (click)="createSaleItem()">Guardar parte</button></div>
+			</div>
+		}
+
+		<div hlmTableContainer>
+			<table hlmTable>
+				<thead hlmTHead>
+					<tr hlmTr>
+						<th hlmTh>Foto</th>
+						<th hlmTh>Item</th>
+						<th hlmTh>Precio</th>
+						<th hlmTh>Stock</th>
+						<th hlmTh>Minimo</th>
+						<th hlmTh>Acciones</th>
+					</tr>
+				</thead>
+				<tbody hlmTBody>
+					@for (item of items(); track item.id) {
+						<tr hlmTr>
+							<td hlmTd><img class="thumb" [src]="item.fotoUrl" [alt]="item.nombre" /></td>
+							<td hlmTd>
+								<div class="font-medium">{{ item.nombre }}</div>
+								<div class="text-muted-foreground text-xs">{{ item.descripcion }}</div>
+							</td>
+							<td hlmTd>${{ item.precioVenta || 0 | number : '1.0-0' }}</td>
+							<td hlmTd><span hlmBadge [ngClass]="stockClass(item.stockActual, item.stockMinimo)">{{ item.stockActual }}</span></td>
+							<td hlmTd>{{ item.stockMinimo }}</td>
+							<td hlmTd><button hlmBtn size="sm" variant="outline" type="button" (click)="selectItem(item.id)">Gestionar</button></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		@if (selectedItem(); as item) {
+			<div class="adjust-row">
+				<label class="field">
+					<span>Cantidad (negativo para ajuste a la baja)</span>
+					<input hlmInput type="number" [value]="qtyEdit()" (input)="qtyEdit.set(+($any($event.target)).value || 0)" />
+				</label>
+				<label class="field">
+					<span>Motivo</span>
+					<input hlmInput [value]="reasonEdit()" (input)="reasonEdit.set(($any($event.target)).value)" />
+				</label>
+				<div class="actions">
+					<button hlmBtn size="sm" type="button" variant="outline" (click)="registerEntry()">Registrar entrada</button>
+					<button hlmBtn size="sm" type="button" (click)="registerManualAdjust()">Ajuste manual</button>
+				</div>
+			</div>
+
+			<div hlmTableContainer>
+				<table hlmTable>
+					<thead hlmTHead>
+						<tr hlmTr>
+							<th hlmTh>Fecha</th>
+							<th hlmTh>Tipo</th>
+							<th hlmTh>Cantidad</th>
+							<th hlmTh>Stock resultante</th>
+							<th hlmTh>OT</th>
+							<th hlmTh>Motivo</th>
+						</tr>
+					</thead>
+					<tbody hlmTBody>
+						@for (movement of movements(); track movement.id) {
+							<tr hlmTr>
+								<td hlmTd>{{ movement.timestamp }}</td>
+								<td hlmTd>{{ movement.type }}</td>
+								<td hlmTd>{{ movement.cantidad }}</td>
+								<td hlmTd>{{ movement.stockResultante }}</td>
+								<td hlmTd>{{ movement.relatedOtId || '-' }}</td>
+								<td hlmTd>{{ movement.motivo }}</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+</hlm-card>
