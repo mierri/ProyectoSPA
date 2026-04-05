@@ -19,7 +19,7 @@ export const data = {
 			label: 'Gestion',
 			items: [
 				{ title: 'Agenda de pagos', url: '/app/agenda-pagos', icon: 'lucideReceiptText' },
-				{ title: 'Contactos (proveedores)', url: '/app/contactos-proveedores', icon: 'lucideBadgeCheck' },
+				{ title: 'Proveedores', url: '/app/contactos-proveedores', icon: 'lucideBadgeCheck' },
 				{ title: 'Lista de precios', url: '/app/lista-precios', icon: 'lucideCreditCard' },
 				{ title: 'KPIs', url: '/app/kpis', icon: 'lucideChartPie' },
 				{ title: 'Finanzas y reportes', url: '/app/finanzas-reportes', icon: 'lucideSettings2' },

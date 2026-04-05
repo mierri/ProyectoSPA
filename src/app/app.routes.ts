@@ -44,7 +44,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'contactos-proveedores',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/contacts').then((m) => m.ContactsPageComponent),
 			},
 			{
 				path: 'lista-actividades',
