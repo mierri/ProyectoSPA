@@ -41,7 +41,7 @@
             @for (tag of availableTags(); track tag) {
               <hlm-select-item [value]="tag" (click)="toggleTag(tag)">
                 @if (selectedTags().includes(tag)) {
-                  <span>✓ {{ tag }}</span>
+                  <span>{{ tag }}</span>
                 } @else {
                   <span>{{ tag }}</span>
                 }
