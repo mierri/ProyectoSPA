@@ -50,14 +50,35 @@
 	display: grid;
 	grid-template-columns: repeat(1, minmax(0, 1fr));
 	gap: 1rem;
+	min-height: 600px;
 }
 
 .kanban-column {
 	height: 100%;
+	display: flex;
+	flex-direction: column;
+	min-height: 250px;
 }
 
 .kanban-drop-zone {
-	min-height: 120px;
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem;
+	pointer-events: auto !important;
+	flex-grow: 1;
+	position: relative;
+	z-index: 1;
+	background: transparent !important;
+	transform: translate3d(0, 0, 0);
+	box-sizing: border-box;
+	border: none !important;
+}
+
+.kanban-drop-zone.cdk-drop-list-dragging {
+	border: none !important;
+	background: transparent !important;
 }
 
 .kanban-card {
@@ -72,6 +93,9 @@
 	padding: 0.65rem;
 	touch-action: none;
 	cursor: grab;
+	pointer-events: auto;
+	position: relative;
+	z-index: 2;
 }
 
 .kanban-card:active {

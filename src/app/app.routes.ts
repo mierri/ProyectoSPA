@@ -48,7 +48,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'lista-actividades',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/activities').then((m) => m.ActivitiesPageComponent),
 			},
 			{
 				path: 'lista-precios',
