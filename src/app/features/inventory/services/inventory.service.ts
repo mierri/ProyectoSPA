@@ -72,6 +72,34 @@ export class InventoryService {
 		return true;
 	}
 
+	public updateInventoryItem(itemId: string, payload: Partial<CreateInventoryItemInput>): boolean {
+		const currentItem = this._items().find((item) => item.id === itemId);
+		if (!currentItem) {
+			return false;
+		}
+
+		this._items.update((items) =>
+			items.map((item) =>
+				item.id === itemId
+					? {
+							...item,
+							nombre: payload.nombre?.trim() || item.nombre,
+							tipo: payload.tipo || item.tipo,
+							fotoUrl: payload.fotoUrl?.trim() || item.fotoUrl,
+							descripcion: payload.descripcion?.trim() || item.descripcion,
+							estado: payload.estado || item.estado,
+							responsable: payload.responsable?.trim() || item.responsable,
+							stockActual: typeof payload.stockActual === 'number' ? Math.max(0, payload.stockActual) : item.stockActual,
+							stockMinimo: typeof payload.stockMinimo === 'number' ? Math.max(0, payload.stockMinimo) : item.stockMinimo,
+							precioVenta: payload.precioVenta ?? item.precioVenta,
+							linkedPartId: payload.linkedPartId ?? item.linkedPartId,
+						}
+					: item,
+			),
+		);
+		return true;
+	}
+
 	public updateItemMeta(id: string, patch: { estado?: InventoryItemCondition; responsable?: string; stockMinimo?: number }): void {
 		this._items.update((items) =>
 			items.map((item) =>
@@ -135,6 +163,16 @@ export class InventoryService {
 
 	public markCustodyDelivered(id: string): void {
 		this._custody.update((entries) => entries.map((entry) => (entry.id === id ? { ...entry, estado: 'Entregado' as const } : entry)));
+	}
+
+	public deleteCustodyEntry(id: string): boolean {
+		let removed = false;
+		this._custody.update((entries) => {
+			const filtered = entries.filter((entry) => entry.id !== id);
+			removed = filtered.length !== entries.length;
+			return filtered;
+		});
+		return removed;
 	}
 
 	private applyMovement(

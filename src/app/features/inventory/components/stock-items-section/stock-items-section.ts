@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideHammer, lucidePackage, lucideTrash2, lucideWrench } from '@ng-icons/lucide';
+import { lucideHammer, lucidePackage, lucideTrash2, lucideWrench, lucidePencil } from '@ng-icons/lucide';
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion';
 import { HlmAlertDialogImports } from '../../../../components/ui/alert-dialog/src';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
@@ -31,7 +31,7 @@ import { InventoryService } from '../../services';
 		HlmIconImports,
 		NgIcon,
 	],
-	providers: [provideIcons({ lucideWrench, lucidePackage, lucideHammer, lucideTrash2 })],
+	providers: [provideIcons({ lucideWrench, lucidePackage, lucideHammer, lucideTrash2, lucidePencil })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './stock-items-section.html',
 	styleUrl: './stock-items-section.css',
@@ -71,6 +71,7 @@ export class StockItemsSectionComponent {
 	protected readonly createStockActual = signal(0);
 	protected readonly createStockMinimo = signal(0);
 	protected readonly createPhoto = signal('');
+	protected readonly editingItemId = signal('');
 	protected readonly selectedItem = computed(() => this.items().find((item) => item.id === this.selectedItemId()));
 	protected readonly selectedMovements = computed(() =>
 		this.selectedItemId() ? this._service.getItemMovements(this.selectedItemId()).slice(0, 8) : [],
@@ -87,6 +88,19 @@ export class StockItemsSectionComponent {
 		this.conditionEdit.set(item.estado);
 		this.qtyEdit.set(1);
 		this.reasonEdit.set('Movimiento manual');
+	}
+
+	protected editItem(item: any): void {
+		this.editingItemId.set(item.id);
+		this.createNombre.set(item.nombre);
+		this.createTipo.set(item.tipo);
+		this.createDescripcion.set(item.descripcion);
+		this.createEstado.set(item.estado);
+		this.createResponsable.set(item.responsable);
+		this.createStockActual.set(item.stockActual);
+		this.createStockMinimo.set(item.stockMinimo);
+		this.createPhoto.set(item.fotoUrl);
+		this.showCreateForm.set(true);
 	}
 
 	protected saveItemMeta(): void {
@@ -133,23 +147,46 @@ export class StockItemsSectionComponent {
 
 	protected createItem(): void {
 		if (!this.createNombre().trim()) return;
-		this._service.createInventoryItem({
-			nombre: this.createNombre(),
-			tipo: this.createTipo(),
-			fotoUrl: this.createPhoto(),
-			descripcion: this.createDescripcion(),
-			estado: this.createEstado(),
-			responsable: this.createResponsable(),
-			stockActual: this.createStockActual(),
-			stockMinimo: this.createStockMinimo(),
-		});
-		this._notification.success('Item operativo agregado.');
+		const editingId = this.editingItemId();
+		if (editingId) {
+			this._service.updateInventoryItem(editingId, {
+				nombre: this.createNombre(),
+				tipo: this.createTipo(),
+				fotoUrl: this.createPhoto(),
+				descripcion: this.createDescripcion(),
+				estado: this.createEstado(),
+				responsable: this.createResponsable(),
+				stockActual: this.createStockActual(),
+				stockMinimo: this.createStockMinimo(),
+			});
+			this._notification.success('Item operativo actualizado.');
+		} else {
+			this._service.createInventoryItem({
+				nombre: this.createNombre(),
+				tipo: this.createTipo(),
+				fotoUrl: this.createPhoto(),
+				descripcion: this.createDescripcion(),
+				estado: this.createEstado(),
+				responsable: this.createResponsable(),
+				stockActual: this.createStockActual(),
+				stockMinimo: this.createStockMinimo(),
+			});
+			this._notification.success('Item operativo agregado.');
+		}
+		this.resetForm();
+	}
+
+	protected resetForm(): void {
+		this.editingItemId.set('');
 		this.showCreateForm.set(false);
 		this.createNombre.set('');
 		this.createDescripcion.set('');
 		this.createPhoto.set('');
 		this.createStockActual.set(0);
 		this.createStockMinimo.set(0);
+		this.createTipo.set('Herramienta');
+		this.createEstado.set('Bueno');
+		this.createResponsable.set('Almacen');
 	}
 
 	protected deleteItem(itemId: string): void {
@@ -176,10 +213,10 @@ export class StockItemsSectionComponent {
 	protected adjustManual(): void {
 		const item = this.selectedItem();
 		if (!item) return;
-		const delta = this.qtyEdit();
+		const delta = -Math.abs(this.qtyEdit());
 		const ok = this._service.recordManualAdjustment(item.id, delta, this.reasonEdit(), 'Administrador');
 		if (ok) {
-			this._notification.info('Ajuste manual aplicado.');
+			this._notification.info('Salida registrada.');
 		}
 	}
 

@@ -4,13 +4,18 @@
 			<h3 hlmCardTitle>Resguardo de pertenencias del cliente</h3>
 			<p hlmCardDescription>Bateria, llave y accesorios vinculados a la OT.</p>
 		</div>
-		<button hlmBtn size="sm" type="button" variant="outline" (click)="showCreateForm.set(!showCreateForm())">
+		<button hlmBtn size="sm" type="button" variant="outline" (click)="showCreateForm() ? resetForm() : showCreateForm.set(true)">
 			{{ showCreateForm() ? 'Cancelar' : 'Agregar resguardo' }}
 		</button>
 	</hlm-card-header>
-	<div hlmCardContent class="space-y-4">
+	<div hlmCardContent class="space-y-4 px-6">
 		@if (showCreateForm()) {
-			<div class="form-grid">
+			<hlm-card>
+				<hlm-card-header class="pb-2">
+					<h4 class="text-base font-semibold">{{ editingEntryId() ? 'Editar' : 'Agregar' }} resguardo</h4>
+				</hlm-card-header>
+				<div hlmCardContent class="space-y-3 pt-4">
+					<div class="form-grid">
 				<label class="field">
 					<span>OT vinculada</span>
 					<hlm-combobox [value]="otId()" (valueChange)="onOtChange(($event ?? '') + '')" [itemToString]="otItemToString">
@@ -62,13 +67,15 @@
 						<img class="preview" [src]="photoPreview()" alt="Vista previa de resguardo" />
 					</div>
 				}
-				<div class="md:col-span-2 flex justify-end">
-					<button hlmBtn size="sm" type="button" (click)="createEntry()">Registrar resguardo</button>
+			<div class="col-span-full flex justify-end">
+				<button hlmBtn size="sm" type="button" (click)="createEntry()">{{ editingEntryId() ? 'Actualizar' : 'Registrar' }} resguardo</button>
+			</div>
 				</div>
 			</div>
+			</hlm-card>
 		}
 
-		<div hlmTableContainer>
+		<div hlmTableContainer class="px-6">
 			<table hlmTable>
 				<thead hlmTHead>
 					<tr hlmTr>
@@ -93,9 +100,29 @@
 							<td hlmTd><span hlmBadge [ngClass]="stateClass(entry.estado)">{{ entry.estado }}</span></td>
 							<td hlmTd>{{ entry.fechaIngreso }}</td>
 							<td hlmTd>
+							<div class="row-actions">
 								<button hlmBtn size="sm" variant="outline" type="button" [disabled]="entry.estado === 'Entregado'" (click)="markDelivered(entry.id)">
 									Marcar entregado
 								</button>
+								<button hlmBtn size="sm" variant="outline" type="button" (click)="editEntry(entry.id)">
+									<ng-icon name="lucidePencil" class="size-4" />
+								</button>
+								<hlm-alert-dialog>
+									<button hlmBtn hlmAlertDialogTrigger size="icon" variant="destructive" type="button" aria-label="Eliminar resguardo">
+										<ng-icon name="lucideTrash2" class="size-4" />
+									</button>
+									<div hlmAlertDialogContent *hlmAlertDialogPortal="let ctx">
+										<div hlmAlertDialogHeader>
+											<h4 hlmAlertDialogTitle>Eliminar resguardo</h4>
+											<p hlmAlertDialogDescription>Se eliminará el resguardo de <strong>{{ entry.item }}</strong>.</p>
+										</div>
+										<div hlmAlertDialogFooter>
+											<button hlmAlertDialogCancel (click)="ctx.close()">Cancelar</button>
+											<button hlmAlertDialogAction variant="destructive" (click)="deleteEntry(entry.id); ctx.close()">Si, eliminar</button>
+										</div>
+									</div>
+								</hlm-alert-dialog>
+							</div>
 							</td>
 						</tr>
 					}

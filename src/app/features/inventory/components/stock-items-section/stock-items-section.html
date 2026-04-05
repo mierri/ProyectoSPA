@@ -4,7 +4,7 @@
 			<h3 hlmCardTitle>Herramientas, consumibles y equipos</h3>
 			<p hlmCardDescription>Gestion de stock, responsable, estado y movimientos.</p>
 		</div>
-		<button hlmBtn size="sm" type="button" variant="outline" (click)="showCreateForm.set(!showCreateForm())">
+		<button hlmBtn size="sm" type="button" variant="outline" (click)="showCreateForm() ? resetForm() : showCreateForm.set(true)">
 			{{ showCreateForm() ? 'Cancelar' : 'Agregar item' }}
 		</button>
 	</hlm-card-header>
@@ -12,6 +12,9 @@
 	<div hlmCardContent class="space-y-4">
 		@if (showCreateForm()) {
 			<hlm-card>
+				<hlm-card-header class="pb-2">
+					<h4 class="text-base font-semibold">{{ editingItemId() ? 'Editar' : 'Agregar' }} item</h4>
+				</hlm-card-header>
 				<div hlmCardContent class="space-y-3 pt-4">
 					<div class="edit-grid">
 						<label class="field">
@@ -45,14 +48,7 @@
 							</hlm-select>
 						</label>
 						<label class="field">
-							<span>Responsable</span>
-							<input hlmInput class="w-full" [value]="createResponsable()" (input)="createResponsable.set(($any($event.target)).value)" />
-						</label>
-						<label class="field">
-							<span>Stock actual</span>
-							<input hlmInput class="w-full" type="number" [value]="createStockActual()" (input)="createStockActual.set(+($any($event.target)).value || 0)" />
-						</label>
-						<label class="field">
+
 							<span>Stock minimo</span>
 							<input hlmInput class="w-full" type="number" [value]="createStockMinimo()" (input)="createStockMinimo.set(+($any($event.target)).value || 0)" />
 						</label>
@@ -62,11 +58,11 @@
 						</label>
 						<label class="field md:col-span-2">
 							<span>Foto</span>
-							<input class="upload-input" type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+						<input hlmInput type="file" accept="image/*" (change)="onPhotoSelected($event)" />
 						</label>
 					</div>
-					<div class="flex justify-end">
-						<button hlmBtn size="sm" type="button" (click)="createItem()">Guardar item</button>
+				<div class="flex justify-end">
+						<button hlmBtn size="sm" type="button" (click)="createItem()">{{ editingItemId() ? 'Actualizar' : 'Guardar' }} item</button>
 					</div>
 				</div>
 			</hlm-card>
@@ -114,6 +110,9 @@
 											<td hlmTd>
 												<div class="row-actions">
 													<button hlmBtn size="sm" variant="outline" type="button" (click)="selectItem(item.id)">Gestionar</button>
+													<button hlmBtn size="icon" variant="outline" type="button" (click)="editItem(item)" aria-label="Editar item">
+														<ng-icon name="lucidePencil" class="size-4" />
+													</button>
 													<hlm-alert-dialog>
 														<button hlmBtn hlmAlertDialogTrigger size="icon" variant="destructive" type="button" aria-label="Eliminar item">
 															<ng-icon name="lucideTrash2" class="size-4" />
@@ -136,13 +135,14 @@
 										@if (selectedItemId() === item.id) {
 											<tr hlmTr>
 												<td hlmTd colspan="7">
-													<div class="inline-manage space-y-3">
+													<hlm-card class="mt-3">
+													<div hlmCardContent class="space-y-3 pt-4 px-4">
 														<div class="manage-header">
-															<h4 class="text-base font-semibold">Gestion de {{ item.nombre }}</h4>
-															<button hlmBtn size="sm" variant="ghost" type="button" (click)="closeManagePanel()">Cerrar</button>
-														</div>
+																<h4 class="text-base font-semibold">Gestion de {{ item.nombre }}</h4>
+																<button hlmBtn size="sm" variant="ghost" type="button" (click)="closeManagePanel()">Cerrar</button>
+															</div>
 
-														<div class="edit-grid">
+															<div class="edit-grid">
 															<label class="field">
 																<span>Estado</span>
 																<hlm-select [value]="conditionEdit()" (valueChange)="onConditionChange(($event ?? '') + '')">
@@ -157,10 +157,7 @@
 																</hlm-select>
 															</label>
 															<label class="field">
-																<span>Responsable</span>
-																<input hlmInput class="w-full" [value]="responsibleEdit()" (input)="responsibleEdit.set(($any($event.target)).value)" />
-															</label>
-															<label class="field">
+
 																<span>Stock minimo</span>
 																<input hlmInput class="w-full" type="number" [value]="stockMinEdit()" (input)="stockMinEdit.set(+($any($event.target)).value || 0)" />
 															</label>
@@ -169,16 +166,16 @@
 
 														<div class="edit-grid">
 															<label class="field">
-																<span>Cantidad (usa negativo para ajuste a la baja)</span>
-																<input hlmInput class="w-full" type="number" [value]="qtyEdit()" (input)="qtyEdit.set(+($any($event.target)).value || 0)" />
+																<span>Cantidad</span>
+																<input hlmInput class="w-full" type="number" [value]="qtyEdit()" (input)="qtyEdit.set(+($any($event.target)).value || 0)" placeholder="Cantidad a registrar" />
 															</label>
 															<label class="field">
 																<span>Motivo</span>
 																<input hlmInput class="w-full" [value]="reasonEdit()" (input)="reasonEdit.set(($any($event.target)).value)" />
 															</label>
 															<div class="movement-actions">
-																<button hlmBtn size="sm" type="button" variant="outline" (click)="addEntry()">Registrar entrada</button>
-																<button hlmBtn size="sm" type="button" (click)="adjustManual()">Ajuste manual</button>
+															<button hlmBtn size="sm" type="button" variant="outline" (click)="addEntry()">Entrada +</button>
+															<button hlmBtn size="sm" type="button" (click)="adjustManual()">Salida -</button>
 															</div>
 														</div>
 
@@ -214,6 +211,7 @@
 															</div>
 														</div>
 													</div>
+												</hlm-card>
 												</td>
 											</tr>
 										}
@@ -226,4 +224,3 @@
 			}
 		</div>
 	</div>
-</hlm-card>
