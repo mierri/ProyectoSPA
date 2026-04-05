@@ -38,11 +38,37 @@
 }
 
 .contact-create-dialog-content {
-  max-width: 900px !important;
+  width: 90vw !important;
+  max-width: 90vw !important;
+  min-width: 90vw !important;
 }
 
 .contact-detail-dialog-content {
-  max-width: 900px !important;
+  width: 90vw !important;
+  max-width: 90vw !important;
+  min-width: 90vw !important;
+}
+
+/* Global dialog overrides using ::ng-deep */
+:host ::ng-deep {
+  .contact-create-dialog-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    min-width: 90vw !important;
+  }
+
+  .contact-detail-dialog-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    min-width: 90vw !important;
+  }
+
+  /* Target dialog wrapper if available */
+  .brn-dialog-content.contact-create-dialog-content,
+  .brn-dialog-content.contact-detail-dialog-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+  }
 }
 
 .contacts-grid {

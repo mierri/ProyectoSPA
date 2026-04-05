@@ -14,6 +14,7 @@ export interface ContactDetailDialogContext {
   standalone: true,
   imports: [CommonModule, HlmButtonImports, HlmBadgeImports],
   templateUrl: './contact-detail-dialog.html',
+  styleUrl: './contact-detail-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactDetailDialogComponent {

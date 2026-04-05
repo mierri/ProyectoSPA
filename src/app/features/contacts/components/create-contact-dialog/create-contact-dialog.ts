@@ -21,6 +21,7 @@ export interface CreateContactDialogContext {
   standalone: true,
   imports: [CommonModule, FormsModule, HlmButtonImports, HlmInputImports, HlmSelectImports, HlmLabelImports],
   templateUrl: './create-contact-dialog.html',
+  styleUrl: './create-contact-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateContactDialogComponent {
