@@ -9,7 +9,6 @@
     </button>
   </div>
 
-  <!-- Filtros en Card -->
   <hlm-card>
     <div hlmCardContent class="filters-grid">
       <input
@@ -21,7 +20,6 @@
         (input)="updateSearch(($any($event.target)).value)"
       />
 
-      <!-- Select múltiple para Etiquetas -->
       <hlm-select-multiple>
         <hlm-select-trigger class="w-full">
           <hlm-select-placeholder>{{ selectedTagsLabel() }}</hlm-select-placeholder>
@@ -56,7 +54,6 @@
         </hlm-select-content>
       </hlm-select-multiple>
 
-      <!-- Select múltiple para Prioridades -->
       <hlm-select-multiple>
         <hlm-select-trigger class="w-full">
           <hlm-select-placeholder>{{ selectedPrioritiesLabel() }}</hlm-select-placeholder>
@@ -84,7 +81,6 @@
     </div>
   </hlm-card>
 
-  <!-- View Mode Selector -->
   <div class="view-switch">
     <button hlmBtn type="button" [variant]="viewMode() === 'list' ? 'default' : 'outline'" (click)="setView('list')">
       Lista
@@ -94,7 +90,6 @@
     </button>
   </div>
 
-  <!-- Vista Lista (Tabla) -->
   @if (viewMode() === 'list') {
     <hlm-card>
       <div hlmCardContent>
@@ -116,7 +111,6 @@
                   <td hlmTd class="font-medium">{{ activity.titulo }}</td>
                   <td hlmTd>{{ activity.asignadoA }}</td>
                   
-                  <!-- Etiqueta con Select -->
                   <td hlmTd>
                     <hlm-select [value]="activity.etiqueta" (valueChange)="updateActivityTag(activity.id, ($event ?? activity.etiqueta) + '')">
                       <hlm-select-trigger size="sm" class="w-full">
@@ -132,7 +126,6 @@
                     </hlm-select>
                   </td>
 
-                  <!-- Prioridad con Select -->
                   <td hlmTd>
                     <hlm-select 
                       [value]="activity.prioridad" 
@@ -151,7 +144,6 @@
                     </hlm-select>
                   </td>
 
-                  <!-- Estado con Select -->
                   <td hlmTd>
                     <hlm-select 
                       [value]="activity.estado" 
@@ -170,7 +162,6 @@
                     </hlm-select>
                   </td>
 
-                  <!-- Acciones -->
                   <td hlmTd>
                     <div class="actions-cell">
                       <button
@@ -214,7 +205,6 @@
     </hlm-card>
   }
 
-  <!-- Vista Kanban -->
   @if (viewMode() === 'kanban') {
     <section class="kanban-grid">
       @for (column of kanbanColumns(); track column.estado) {

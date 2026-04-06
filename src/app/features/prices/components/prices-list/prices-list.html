@@ -1,5 +1,4 @@
 <section class="prices-page">
-  <!-- Header -->
   <div class="header-section">
     <div>
       <h1 class="text-2xl font-bold">Gestión de Servicios y Cotizaciones</h1>
@@ -16,10 +15,8 @@
     </div>
   </div>
 
-  <!-- Catálogo de Servicios -->
   @if (!showQuoter()) {
 
-  <!-- Barra de Búsqueda -->
   <div class="search-section">
     <input
       hlmInput
@@ -31,7 +28,6 @@
     />
   </div>
 
-  <!-- Filtros por Categoría -->
   <div class="category-filters">
     <label hlmLabel class="text-sm font-medium">Categoría:</label>
     <div class="btn-group">
@@ -49,7 +45,6 @@
     </div>
   </div>
 
-  <!-- Filtro Secundario por Sistema y Familia (mostrar solo si no es Torno) -->
   @if (selectedCategoria() !== 'Servicio de Torno' && selectedCategoria() !== 'Todas' && sistemaOptions().length > 0) {
     <div class="sistema-filter" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-top: 1.5rem;">
       <div style="flex: 1; min-width: 200px;">
@@ -69,7 +64,6 @@
         </hlm-select>
       </div>
 
-      <!-- Familia filter (show only if sistema is selected and familias available) -->
       @if (selectedSistema() && familiaOptions().length > 0) {
         <div style="flex: 1; min-width: 200px;">
           <label hlmLabel for="familia-select" class="text-sm font-medium">Familia:</label>
@@ -91,12 +85,10 @@
     </div>
   }
 
-  <!-- Tabla de Resultados -->
   <hlm-card class="table-card">
     <div hlmCardContent class="p-0">
       <div hlmTableContainer>
         <table hlmTable>
-          <!-- Cabecera para servicios automotrices -->
           @if (selectedCategoria() !== 'Servicio de Torno' && servicios().length > 0) {
             <thead hlmTHead>
               <tr hlmTr>
@@ -156,7 +148,6 @@
             </tbody>
           }
 
-          <!-- Cabecera para servicios de torno -->
           @if (selectedCategoria() === 'Servicio de Torno' && servicios().length > 0) {
             <thead hlmTHead>
               <tr hlmTr>
@@ -191,7 +182,6 @@
         </table>
       </div>
 
-      <!-- Empty State -->
       @if (servicios().length === 0) {
         <div class="empty-state">
           <p class="text-muted-foreground">No hay servicios que coincidan con los filtros</p>
@@ -200,7 +190,6 @@
     </div>
   </hlm-card>
 
-      <!-- Paginación -->
       @if (totalItems() > 0) {
         <div class="pagination-section">
           <div class="pagination-info">
@@ -210,7 +199,6 @@
           </div>
 
           <div class="pagination-controls">
-            <!-- Page Size Selector -->
             <div class="page-size-selector">
               <label hlmLabel for="page-size" class="text-xs font-medium">Por página:</label>
               <hlm-select [value]="pageSize().toString()" (valueChange)="changePageSize(+($event || '10'))">
@@ -228,7 +216,6 @@
               </hlm-select>
             </div>
 
-            <!-- Pagination Buttons -->
             <div class="pagination-buttons">
               <button
                 hlmBtn
@@ -238,7 +225,7 @@
                 [disabled]="pageNumber() === 0"
                 (click)="goToPage(pageNumber() - 1)"
               >
-                ← Anterior
+                Anterior
               </button>
 
               <div class="page-numbers">
@@ -263,14 +250,13 @@
                 [disabled]="pageNumber() >= totalPages() - 1"
                 (click)="goToPage(pageNumber() + 1)"
               >
-                Siguiente →
+                Siguiente
               </button>
             </div>
           </div>
         </div>
       }
     }
-    <!-- Cotizador Section -->
     @if (showQuoter()) {
       <div class="mt-6">
         <spartan-price-quoter />

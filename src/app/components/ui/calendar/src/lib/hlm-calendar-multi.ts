@@ -40,7 +40,6 @@ import type { ClassValue } from 'clsx';
 			[class]="_computedCalenderClass()"
 		>
 			<div class="inline-flex flex-col space-y-4">
-				<!-- Header -->
 				<div class="space-y-4">
 					<div class="relative flex items-center justify-center pt-1">
 						<div class="flex w-full items-center justify-center gap-1.5">

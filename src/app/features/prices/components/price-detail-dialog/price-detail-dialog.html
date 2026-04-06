@@ -1,12 +1,10 @@
 <div class="dialog-shell">
-  <!-- AUTOMOTRIZ SERVICE -->
   @if (isAutomotriz(servicio)) {
     <div>
       <h2 class="text-lg font-semibold">{{ ($any(servicio)).concepto }}</h2>
       <p class="text-muted-foreground text-sm">{{ ($any(servicio)).familia }}</p>
     </div>
 
-    <!-- Información General -->
     <div class="info-grid">
       <div class="info-row">
         <span class="label">Categoría:</span>
@@ -31,7 +29,6 @@
       }
     </div>
 
-    <!-- Información de Precios Automotriz -->
     <div class="section">
       <h3 class="text-sm font-semibold mb-3">Información de Precios</h3>
       <div class="price-breakdown">
@@ -51,14 +48,12 @@
     </div>
   }
 
-  <!-- TORNO SERVICE -->
   @if (isTorno(servicio)) {
     <div>
       <h2 class="text-lg font-semibold">Servicio de Torno - {{ ($any(servicio)).tamano }}</h2>
       <p class="text-muted-foreground text-sm">Diámetro: {{ ($any(servicio)).diametro }}</p>
     </div>
 
-    <!-- Información General -->
     <div class="info-grid">
       <div class="info-row">
         <span class="label">Categoría:</span>
@@ -81,7 +76,6 @@
       </div>
     </div>
 
-    <!-- Información de Precio Torno -->
     <div class="section">
       <h3 class="text-sm font-semibold mb-3">Información de Precio</h3>
       <div class="price-breakdown">

@@ -4,7 +4,6 @@
     <p class="text-muted-foreground text-sm">Completa los detalles del servicio</p>
   </div>
 
-  <!-- Selector de Categoría -->
   <div class="category-selector" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
     @for (cat of ['Afinación y Otros', 'Mecánica Rápida', 'Mecánica General', 'Servicio de Torno']; track cat) {
       <button
@@ -20,9 +19,7 @@
   </div>
 
   <form class="form-grid">
-    <!-- SERVICIOS AUTOMOTRICES -->
     @if (!isTorno()) {
-      <!-- Concepto -->
       <div class="form-group full">
         <label hlmLabel for="concepto">Concepto *</label>
         <input
@@ -35,7 +32,6 @@
         />
       </div>
 
-      <!-- Sistema y Familia -->
       <div class="form-grid-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div class="form-group">
           <label hlmLabel for="sistema">Sistema *</label>
@@ -87,7 +83,6 @@
         }
       </div>
 
-      <!-- Precios por tipo de vehículo -->
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
         <div class="form-group">
           <label hlmLabel for="precioAuto">Precio Auto ($) *</label>
@@ -126,7 +121,6 @@
         </div>
       </div>
 
-      <!-- Observación -->
       <div class="form-group full">
         <label hlmLabel for="observacion">Observación</label>
         <input
@@ -140,7 +134,6 @@
       </div>
     }
 
-    <!-- SERVICIOS DE TORNO -->
     @if (isTorno()) {
       <div class="form-group full">
         <label hlmLabel for="tamano">Tamaño *</label>
@@ -180,7 +173,6 @@
     }
   </form>
 
-  <!-- Actions -->
   <div class="dialog-actions" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
     <button hlmBtn variant="outline" (click)="close()">Cancelar</button>
     <button hlmBtn (click)="save()">{{ isEditMode ? 'Actualizar' : 'Crear' }}</button>

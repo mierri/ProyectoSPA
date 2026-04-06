@@ -3,7 +3,6 @@
     <div hlmCardContent>
       <h3 class="text-lg font-semibold mb-4">Generador de Cotizaciones</h3>
 
-      <!-- Service Selection -->
       <div class="selection-grid">
         <div class="form-group">
           <label class="text-sm font-medium">Selecciona un Servicio</label>
@@ -43,7 +42,6 @@
         </div>
       </div>
 
-      <!-- Quote Items Table -->
       @if (quoteItems().length > 0) {
         <div class="mt-6">
           <h4 class="font-semibold mb-3">Artículos en la Cotización</h4>
@@ -82,7 +80,6 @@
             </table>
           </div>
 
-          <!-- Totals -->
           <div class="totals-section">
             <div class="total-row">
               <span>Subtotal:</span>
@@ -105,7 +102,6 @@
         </div>
       }
 
-      <!-- Empty State -->
       @if (quoteItems().length === 0) {
         <div class="empty-state">
           <p class="text-muted-foreground text-center">Selecciona servicios para comenzar la cotización</p>

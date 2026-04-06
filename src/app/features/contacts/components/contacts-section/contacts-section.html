@@ -9,7 +9,6 @@
     </button>
   </div>
 
-  <!-- Filtros -->
   <hlm-card>
     <div hlmCardContent class="filters-grid">
       <input
@@ -21,7 +20,6 @@
         (input)="updateSearch(($any($event.target)).value)"
       />
 
-      <!-- Select múltiple para Etiquetas -->
       <hlm-select-multiple>
         <hlm-select-trigger class="w-full">
           <hlm-select-placeholder>{{ selectedTagsLabel() }}</hlm-select-placeholder>
@@ -53,7 +51,6 @@
     </div>
   </hlm-card>
 
-  <!-- View Mode Selector -->
   <div class="view-switch">
     <button hlmBtn type="button" [variant]="viewMode() === 'list' ? 'default' : 'outline'" (click)="setView('list')">
       Tabla
@@ -63,7 +60,6 @@
     </button>
   </div>
 
-  <!-- Vista Lista (Tabla) -->
   @if (viewMode() === 'list') {
     <hlm-card>
       <div hlmCardContent>
@@ -130,7 +126,6 @@
     </hlm-card>
   }
 
-  <!-- Vista Tarjetas (Grid) -->
   @if (viewMode() === 'grid') {
     <section class="contacts-grid">
       @for (contact of filteredContacts(); track contact.id) {
@@ -142,7 +137,6 @@
             </div>
           </hlm-card-header>
           <div hlmCardContent class="card-content">
-            <!-- Información de Contacto -->
             <div class="info-section">
               <p class="text-xs">
                 <span class="label">RFC:</span>
@@ -158,7 +152,6 @@
               </p>
             </div>
 
-            <!-- Condiciones de Crédito -->
             <div class="info-section">
               <p class="text-xs">
                 <span class="label">Crédito:</span>
@@ -170,7 +163,6 @@
               </p>
             </div>
 
-            <!-- Etiquetas -->
             @if (contact.etiquetas.length > 0) {
               <div class="tags">
                 @for (tag of contact.etiquetas; track tag) {
@@ -179,7 +171,6 @@
               </div>
             }
 
-            <!-- Acciones -->
             <div class="card-actions">
               <button
                 hlmBtn
