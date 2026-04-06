@@ -52,7 +52,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'lista-precios',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/prices').then((m) => m.PricesPageComponent),
 			},
 			{
 				path: 'kpis',

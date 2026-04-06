@@ -59,12 +59,18 @@ export interface ServiceCatalogItem {
 	id: string;
 	nombre: string;
 	precio: number;
+	precioAuto?: number;
+	precioCamioneta?: number;
+	precioCamion?: number;
 }
 
 export interface AssignedServiceItem {
 	id: string;
 	nombre: string;
 	precio: number;
+	precioAuto?: number;
+	precioCamioneta?: number;
+	precioCamion?: number;
 }
 
 export interface WorkOrderNote {
@@ -88,6 +94,7 @@ export interface WorkOrder {
 	status: WorkOrderStatus;
 	priority: WorkOrderPriority;
 	vehicle: VehicleData;
+	tipoVehiculo: 'Auto' | 'Camioneta' | 'Camión';
 	problema: string;
 	diagnostico: string;
 	fotosIngreso: string[];
@@ -113,6 +120,7 @@ export interface CreateWorkOrderInput {
 	fechaProgramada: string;
 	priority: WorkOrderPriority;
 	vehicle: VehicleData;
+	tipoVehiculo: 'Auto' | 'Camioneta' | 'Camión';
 	problema: string;
 	diagnostico: string;
 }

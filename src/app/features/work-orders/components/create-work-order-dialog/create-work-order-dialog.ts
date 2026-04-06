@@ -46,6 +46,7 @@ export class CreateWorkOrderDialogComponent {
 
 	protected readonly problema = signal('');
 	protected readonly diagnostico = signal('');
+	protected readonly tipoVehiculo = signal<'Auto' | 'Camioneta' | 'Camión'>('Auto');
 
 	protected readonly newClientName = signal('');
 
@@ -56,6 +57,12 @@ export class CreateWorkOrderDialogComponent {
 	protected onPriorityChange(value: string): void {
 		if (value === 'Baja' || value === 'Media' || value === 'Alta') {
 			this.priority.set(value);
+		}
+	}
+
+	protected onVehicleTypeChange(value: string): void {
+		if (value === 'Auto' || value === 'Camioneta' || value === 'Camión') {
+			this.tipoVehiculo.set(value);
 		}
 	}
 
@@ -89,6 +96,7 @@ export class CreateWorkOrderDialogComponent {
 				vin: this.vin().trim() || 'PENDIENTE',
 				kilometraje: this.kilometraje(),
 			},
+			tipoVehiculo: this.tipoVehiculo(),
 			problema: this.problema().trim(),
 			diagnostico: this.diagnostico().trim() || 'Pendiente de diagnostico tecnico',
 		};

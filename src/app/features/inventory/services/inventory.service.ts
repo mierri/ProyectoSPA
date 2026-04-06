@@ -38,6 +38,7 @@ export class InventoryService {
 			responsable: payload.responsable.trim() || 'Almacen',
 			stockActual: Math.max(0, payload.stockActual),
 			stockMinimo: Math.max(0, payload.stockMinimo),
+			precio: payload.precio,
 			precioVenta: payload.precioVenta,
 			linkedPartId: payload.linkedPartId,
 		};
@@ -91,6 +92,7 @@ export class InventoryService {
 							responsable: payload.responsable?.trim() || item.responsable,
 							stockActual: typeof payload.stockActual === 'number' ? Math.max(0, payload.stockActual) : item.stockActual,
 							stockMinimo: typeof payload.stockMinimo === 'number' ? Math.max(0, payload.stockMinimo) : item.stockMinimo,
+							precio: typeof payload.precio === 'number' ? payload.precio : item.precio,
 							precioVenta: payload.precioVenta ?? item.precioVenta,
 							linkedPartId: payload.linkedPartId ?? item.linkedPartId,
 						}

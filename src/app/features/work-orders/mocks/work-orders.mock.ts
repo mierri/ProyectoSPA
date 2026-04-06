@@ -8,8 +8,7 @@ export const workOrdersMock: WorkOrder[] = [
 		fechaIngreso: '2026-04-02',
 		fechaProgramada: '2026-04-06',
 		status: 'En Proceso',
-		priority: 'Alta',
-		vehicle: {
+		priority: 'Alta',		tipoVehiculo: 'Camioneta',		vehicle: {
 			marca: 'Ford',
 			modelo: 'Transit',
 			anio: 2020,
@@ -61,6 +60,7 @@ export const workOrdersMock: WorkOrder[] = [
 		fechaProgramada: '2026-04-07',
 		status: 'Agendado',
 		priority: 'Media',
+		tipoVehiculo: 'Camioneta',
 		vehicle: {
 			marca: 'Nissan',
 			modelo: 'NP300',
@@ -102,6 +102,7 @@ export const workOrdersMock: WorkOrder[] = [
 		fechaProgramada: '2026-04-08',
 		status: 'En Espera',
 		priority: 'Baja',
+		tipoVehiculo: 'Camión',
 		vehicle: {
 			marca: 'Chevrolet',
 			modelo: 'S10',

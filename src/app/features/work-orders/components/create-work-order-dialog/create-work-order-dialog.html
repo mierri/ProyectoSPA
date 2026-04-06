@@ -78,6 +78,20 @@
 	<div class="subsection">
 		<h3 class="text-sm font-medium">Vehiculo</h3>
 		<div class="form-grid compact">
+			<label class="field"><span>Tipo</span>
+				<hlm-select [value]="tipoVehiculo()" (valueChange)="onVehicleTypeChange($event ?? 'Auto')">
+					<hlm-select-trigger>
+						<hlm-select-value />
+					</hlm-select-trigger>
+					<hlm-select-content *hlmSelectPortal>
+						<hlm-select-group>
+							<hlm-select-item value="Auto">Auto</hlm-select-item>
+							<hlm-select-item value="Camioneta">Camioneta</hlm-select-item>
+							<hlm-select-item value="Camión">Camión</hlm-select-item>
+						</hlm-select-group>
+					</hlm-select-content>
+				</hlm-select>
+			</label>
 			<label class="field"><span>Marca</span><input hlmInput [value]="marca()" (input)="marca.set(($any($event.target)).value)" /></label>
 			<label class="field"><span>Modelo</span><input hlmInput [value]="modelo()" (input)="modelo.set(($any($event.target)).value)" /></label>
 			<label class="field"><span>Anio</span><input hlmInput type="number" [value]="anio()" (input)="anio.set(+($any($event.target)).value || anio())" /></label>

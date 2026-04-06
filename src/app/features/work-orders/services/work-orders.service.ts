@@ -7,6 +7,7 @@ import type {
 	ChecklistItem,
 	ClientData,
 	CreateWorkOrderInput,
+	PartCatalogItem,
 	VehicleData,
 	WorkOrder,
 	WorkOrderNote,
@@ -50,6 +51,7 @@ export class WorkOrdersService {
 				vin: 'PENDIENTE',
 				kilometraje: 0,
 			},
+			tipoVehiculo: 'Auto',
 			problema: 'Pendiente de captura',
 			diagnostico: 'Pendiente de diagnostico tecnico',
 		};
@@ -64,6 +66,7 @@ export class WorkOrdersService {
 			status: 'Agendado',
 			priority: payload.priority,
 			vehicle: { ...payload.vehicle },
+			tipoVehiculo: payload.tipoVehiculo,
 			problema: payload.problema,
 			diagnostico: payload.diagnostico,
 			fotosIngreso: [],
@@ -395,12 +398,72 @@ export class WorkOrdersService {
 					id: service.id,
 					nombre: service.nombre,
 					precio: service.precio,
+					precioAuto: service.precioAuto,
+					precioCamioneta: service.precioCamioneta,
+					precioCamion: service.precioCamion,
 				};
 
 				return {
 					...order,
 					serviciosAsignados: [...order.serviciosAsignados, assignedService],
 					timeline: [this.createTimeline(`Servicio agregado: ${service.nombre}`, usuario), ...order.timeline],
+				};
+			}),
+		);
+	}
+
+	public assignDirectService(id: string, service: any, usuario = 'Asesor'): void {
+		this._workOrders.update((orders) =>
+			orders.map((order) => {
+				if (order.id !== id) {
+					return order;
+				}
+
+				const exists = order.serviciosAsignados.some((s) => s.id === service.id);
+				if (exists) {
+					return order;
+				}
+
+				const assignedService: AssignedServiceItem = {
+					id: service.id,
+					nombre: service.nombre,
+					precio: service.precio,
+					precioAuto: service.precioAuto,
+					precioCamioneta: service.precioCamioneta,
+					precioCamion: service.precioCamion,
+				};
+
+				return {
+					...order,
+					serviciosAsignados: [...order.serviciosAsignados, assignedService],
+					timeline: [this.createTimeline(`Servicio agregado: ${service.nombre}`, usuario), ...order.timeline],
+				};
+			}),
+		);
+	}
+
+	public assignDirectPart(id: string, part: any, usuario = 'Almacen'): void {
+		this._workOrders.update((orders) =>
+			orders.map((order) => {
+				if (order.id !== id) {
+					return order;
+				}
+
+				const catalogItem: PartCatalogItem = {
+					id: part.id,
+					nombre: part.nombre,
+					sku: part.id,
+					stock: part.stockActual || 1,
+					costo: part.precio ?? part.precioVenta ?? 0,
+				};
+
+				const assigned = this.mergeAssignedPart(order.refaccionesAsignadas, catalogItem);
+				this._inventoryService.consumeForWorkOrder(part.id, id, usuario);
+
+				return {
+					...order,
+					refaccionesAsignadas: assigned,
+					timeline: [this.createTimeline(`Refaccion agregada: ${part.nombre}`, usuario), ...order.timeline],
 				};
 			}),
 		);

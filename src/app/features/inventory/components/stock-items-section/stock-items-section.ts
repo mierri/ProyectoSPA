@@ -70,6 +70,7 @@ export class StockItemsSectionComponent {
 	protected readonly createResponsable = signal('Almacen');
 	protected readonly createStockActual = signal(0);
 	protected readonly createStockMinimo = signal(0);
+	protected readonly createPrecio = signal(0);
 	protected readonly createPhoto = signal('');
 	protected readonly editingItemId = signal('');
 	protected readonly selectedItem = computed(() => this.items().find((item) => item.id === this.selectedItemId()));
@@ -99,6 +100,7 @@ export class StockItemsSectionComponent {
 		this.createResponsable.set(item.responsable);
 		this.createStockActual.set(item.stockActual);
 		this.createStockMinimo.set(item.stockMinimo);
+		this.createPrecio.set(item.precio || 0);
 		this.createPhoto.set(item.fotoUrl);
 		this.showCreateForm.set(true);
 	}
@@ -158,6 +160,7 @@ export class StockItemsSectionComponent {
 				responsable: this.createResponsable(),
 				stockActual: this.createStockActual(),
 				stockMinimo: this.createStockMinimo(),
+				precio: this.createPrecio(),
 			});
 			this._notification.success('Item operativo actualizado.');
 		} else {
@@ -170,6 +173,7 @@ export class StockItemsSectionComponent {
 				responsable: this.createResponsable(),
 				stockActual: this.createStockActual(),
 				stockMinimo: this.createStockMinimo(),
+				precio: this.createPrecio(),
 			});
 			this._notification.success('Item operativo agregado.');
 		}
@@ -184,6 +188,7 @@ export class StockItemsSectionComponent {
 		this.createPhoto.set('');
 		this.createStockActual.set(0);
 		this.createStockMinimo.set(0);
+		this.createPrecio.set(0);
 		this.createTipo.set('Herramienta');
 		this.createEstado.set('Bueno');
 		this.createResponsable.set('Almacen');
