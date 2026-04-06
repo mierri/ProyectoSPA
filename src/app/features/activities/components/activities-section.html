@@ -86,7 +86,10 @@
       Lista
     </button>
     <button hlmBtn type="button" [variant]="viewMode() === 'kanban' ? 'default' : 'outline'" (click)="setView('kanban')">
-      Kanban
+      Kanban (Por Estado)
+    </button>
+    <button hlmBtn type="button" [variant]="viewMode() === 'kanban-tags' ? 'default' : 'outline'" (click)="setView('kanban-tags')">
+      Kanban (Por Etiqueta)
     </button>
   </div>
 
@@ -240,6 +243,52 @@
                 <span class="font-medium">{{ activity.titulo }}</span>
                 <span class="text-muted-foreground text-xs">{{ activity.asignadoA }}</span>
                 <span class="text-muted-foreground text-xs">{{ activity.etiqueta }}</span>
+                <span hlmBadge [ngClass]="['act-chip', priorityChipClass(activity.prioridad)]" [variant]="priorityVariant(activity.prioridad)">
+                  {{ activity.prioridad }}
+                </span>
+              </button>
+            }
+          </div>
+        </hlm-card>
+      }
+    </section>
+  }
+
+  @if (viewMode() === 'kanban-tags') {
+    <section class="kanban-grid">
+      @for (column of kanbanColumnsByTag(); track column.tag) {
+        <hlm-card class="kanban-column">
+          <hlm-card-header>
+            <div class="flex items-center justify-between gap-2">
+              <h3 hlmCardTitle class="text-sm">{{ column.tag }}</h3>
+              <span hlmBadge variant="secondary">
+                {{ column.activities.length }}
+              </span>
+            </div>
+          </hlm-card-header>
+          <div
+            hlmCardContent
+            class="kanban-drop-zone"
+            cdkDropList
+            [id]="getKanbanDropListIdForTag(column.tag)"
+            [cdkDropListData]="column.activities"
+            [cdkDropListConnectedTo]="getKanbanDropListIds()"
+            [cdkDropListSortingDisabled]="true"
+            (cdkDropListDropped)="onTagKanbanDrop($event, column.tag)"
+          >
+            @for (activity of column.activities; track activity.id) {
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                class="kanban-card"
+                cdkDrag
+                [cdkDragData]="activity"
+                [cdkDragStartDelay]="{ touch: 140, mouse: 0 }"
+              >
+                <span class="font-medium">{{ activity.titulo }}</span>
+                <span class="text-muted-foreground text-xs">{{ activity.asignadoA }}</span>
+                <span class="text-muted-foreground text-xs">{{ activity.estado }}</span>
                 <span hlmBadge [ngClass]="['act-chip', priorityChipClass(activity.prioridad)]" [variant]="priorityVariant(activity.prioridad)">
                   {{ activity.prioridad }}
                 </span>

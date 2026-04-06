@@ -56,11 +56,11 @@ export const routes: Routes = [
 			},
 			{
 				path: 'kpis',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/kpis').then((m) => m.KpisDashboardComponent),
 			},
 			{
 				path: 'finanzas-reportes',
-				loadComponent: () => import('./features/dashboard').then((m) => m.DashboardComponent),
+				loadComponent: () => import('./features/finanzas').then((m) => m.FinanzasPageComponent),
 			},
 			{
 				path: 'ordenes-trabajo',

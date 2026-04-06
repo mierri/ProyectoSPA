@@ -42,7 +42,8 @@ export class ActivitiesSectionComponent implements OnInit {
 
   public readonly activities = computed(() => this.service.getActivities());
 
-  protected readonly viewMode = signal<'list' | 'kanban'>('list');
+  protected readonly viewMode = signal<'list' | 'kanban' | 'kanban-tags'>('list');
+  protected readonly kanbanViewMode = signal<'estado' | 'tags'>('estado');
   protected readonly searchText = signal('');
   protected readonly selectedTags = signal<string[]>([]);
   protected readonly selectedPriorities = signal<string[]>([]);
@@ -89,8 +90,30 @@ export class ActivitiesSectionComponent implements OnInit {
     }))
   );
 
+  protected readonly kanbanColumnsByTag = computed(() => {
+    const allTags = this.allTags();
+    const columnsByTag = allTags.map(tag => ({
+      tag,
+      activities: this.filteredActivities().filter(a => a.etiqueta === tag),
+    }));
+    
+    // Add "Sin etiqueta" column for activities without a tag
+    const untaggedActivities = this.filteredActivities().filter(a => !a.etiqueta || a.etiqueta.trim() === '');
+    if (untaggedActivities.length > 0 || columnsByTag.length > 0) {
+      columnsByTag.push({
+        tag: 'Sin etiqueta',
+        activities: untaggedActivities,
+      });
+    }
+    
+    return columnsByTag;
+  });
+
   protected getKanbanDropListIds(): string[] {
-    return this.kanbanDropListIdsArray;
+    const estadoIds = this.kanbanDropListIdsArray;
+    const tagIds = this.allTags().map(tag => this.getKanbanDropListIdForTag(tag));
+    const untaggedId = this.getKanbanDropListIdForTag('Sin etiqueta');
+    return [...estadoIds, ...tagIds, untaggedId];
   }
 
   ngOnInit(): void {
@@ -117,8 +140,12 @@ export class ActivitiesSectionComponent implements OnInit {
     }
   }
 
-  protected setView(mode: 'list' | 'kanban'): void {
+  protected setView(mode: 'list' | 'kanban' | 'kanban-tags'): void {
     this.viewMode.set(mode);
+  }
+
+  protected setKanbanView(mode: 'estado' | 'tags'): void {
+    this.kanbanViewMode.set(mode);
   }
 
   protected updateSearch(value: string): void {
@@ -170,6 +197,27 @@ export class ActivitiesSectionComponent implements OnInit {
     }
     this.service.updateActivity(movedActivity.id, { estado: targetEstado });
     this.notification.success(`Actividad "${movedActivity.titulo}" movida a ${targetEstado}`);
+  }
+
+  protected onTagKanbanDrop(event: CdkDragDrop<Activity[]>, targetTag: string): void {
+    const movedActivity = event.item.data as Activity | undefined;
+    if (!movedActivity) {
+      return;
+    }
+    if (movedActivity.etiqueta === targetTag) {
+      return;
+    }
+    this.service.updateActivity(movedActivity.id, { etiqueta: targetTag });
+    this.notification.success(`Actividad "${movedActivity.titulo}" movida a etiqueta "${targetTag}"`);
+  }
+
+  protected getKanbanDropListIdForTag(tag: string): string {
+    const sanitized = tag
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '');
+    return `kanban-activities-tag-${sanitized}`;
   }
 
   protected createActivity(): void {

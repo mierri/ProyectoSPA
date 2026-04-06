@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCommand } from '@ng-icons/lucide';
+import { lucideCar } from '@ng-icons/lucide';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 import { data } from './shared/data';
 import { NavMain } from './shared/nav-main';
@@ -10,7 +10,7 @@ import { NavUser } from './shared/nav-user';
 @Component({
 	selector: 'spartan-app-sidebar-inset',
 	imports: [HlmSidebarImports, NgIcon, NavMain, NavUser, NavSecondary],
-	providers: [provideIcons({ lucideCommand })],
+	providers: [provideIcons({ lucideCar})],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<div hlmSidebarWrapper>
@@ -22,11 +22,11 @@ import { NavUser } from './shared/nav-user';
 								<div
 									class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 								>
-									<ng-icon name="lucideCommand" class="text-base" />
+									<ng-icon name="lucideCar" class="text-base" />
 								</div>
 								<div class="grid flex-1 text-left text-sm leading-tight">
-									<span class="truncate font-medium">Acme Inc</span>
-									<span class="truncate text-xs">Enterprise</span>
+									<span class="truncate font-medium">Servicio Automotriz</span>
+									<span class="truncate text-xs">Colosio</span>
 								</div>
 							</a>
 						</li>

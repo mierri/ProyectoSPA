@@ -9,35 +9,35 @@ import { TempAuthService } from '../../core/auth/auth.service';
 
 @Component({
 	selector: 'login-form',
-	imports: [ReactiveFormsModule, RouterLink, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
+	imports: [ReactiveFormsModule /*, RouterLink */, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<hlm-card>
 			<hlm-card-header>
-				<h3 hlmCardTitle>Sign in</h3>
-				<p hlmCardDescription>Use the temporary credentials shown below.</p>
+				<h3 hlmCardTitle>Inicie sesión</h3>
+				<p hlmCardDescription>Use las credenciales temporales que se muestran a continuación.</p>
 			</hlm-card-header>
 			<div hlmCardContent>
 				<form [formGroup]="form" (ngSubmit)="login()">
 					<hlm-field-group>
 						<hlm-field>
-							<label hlmFieldLabel for="username">Username</label>
-							<input hlmInput type="text" id="username" placeholder="Temporary username" formControlName="username" />
-							<hlm-field-error validator="required">Username is required.</hlm-field-error>
+							<label hlmFieldLabel for="username">Usuario</label>
+							<input hlmInput type="text" id="username" placeholder="Nombre de usuario temporal" formControlName="username" />
+							<hlm-field-error validator="required">El nombre de usuario es obligatorio.</hlm-field-error>
 						</hlm-field>
 						<hlm-field>
 							<div class="flex items-center">
-								<label hlmFieldLabel for="password">Password</label>
-								<a hlmFieldDescription class="ml-auto text-sm underline-offset-4 hover:underline" routerLink=".">
-									Forgot password?
-								</a>
+								<label hlmFieldLabel for="password">Contraseña</label>
+								<!-- <a hlmFieldDescription class="ml-auto text-sm underline-offset-4 hover:underline" routerLink=".">
+									¿Olvidó su contraseña?
+								</a> -->
 							</div>
-							<input hlmInput type="password" id="password" formControlName="password" placeholder="Temporary password" />
-							<hlm-field-error validator="required">Password is required.</hlm-field-error>
-							<hlm-field-error validator="minlength">Password must be at least 8 characters.</hlm-field-error>
+							<input hlmInput type="password" id="password" formControlName="password" placeholder="Contraseña temporal" />
+							<hlm-field-error validator="required">La contraseña es obligatoria.</hlm-field-error>
+							<hlm-field-error validator="minlength">La contraseña debe tener al menos 8 caracteres.</hlm-field-error>
 						</hlm-field>
 						<hlm-field>
-							<button hlmBtn type="submit" [disabled]="form.invalid">Sign in</button>
+							<button hlmBtn type="submit" [disabled]="form.invalid">Iniciar sesión</button>
 							@if (loginError()) {
 								<p class="text-destructive text-sm">{{ loginError() }}</p>
 							}
@@ -47,9 +47,9 @@ import { TempAuthService } from '../../core/auth/auth.service';
 			</div>
 			<hlm-card-footer>
 				<p hlmFieldDescription class="text-xs leading-5">
-					Temp credentials: <br />
-					Username: <strong>{{ tempCredentials.username }}</strong><br />
-					Password: <strong>{{ tempCredentials.password }}</strong>
+					Credenciales temporales: <br />
+					Usuario: <strong>{{ tempCredentials.username }}</strong><br />
+					Contraseña: <strong>{{ tempCredentials.password }}</strong>
 				</p>
 			</hlm-card-footer>
 		</hlm-card>
@@ -81,6 +81,6 @@ export class LoginForm {
 			return;
 		}
 
-		this.loginError.set('Invalid temporary credentials.');
+		this.loginError.set('Credenciales temporales inválidas.');
 	}
 }

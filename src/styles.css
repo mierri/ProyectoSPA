@@ -114,12 +114,14 @@
 
 @layer base {
 * {
-@apply border-border outline-ring/50;
+  border-color: var(--border);
+  outline-color: var(--ring);
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 body {
-@apply bg-background text-foreground;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 *::-webkit-scrollbar {
@@ -160,6 +162,11 @@ body {
 [data-slot='dialog-content'].photo-dialog-content {
 	width: min(90vw, 700px) !important;
 	max-width: min(90vw, 700px) !important;
+}
+
+[data-slot='dialog-content'].kpis-dialog-content {
+	width: min(95vw, 900px) !important;
+	max-width: min(95vw, 900px) !important;
 }
 }
 
@@ -225,4 +232,57 @@ body {
 	background: var(--destructive-border) !important;
 	border-color: var(--destructive) !important;
 	color: var(--destructive-foreground) !important;
+}
+
+/* KPIS Activity Chips */
+.activity-chip {
+	border-width: 1px !important;
+}
+
+.activity-chip-role {
+	background: var(--muted) !important;
+	border-color: var(--border) !important;
+	color: var(--muted-foreground) !important;
+}
+
+.activity-chip-default-chip {
+	background: var(--special) !important;
+	border-color: var(--special-border) !important;
+	color: var(--special-foreground) !important;
+}
+
+.activity-chip-secondary-chip {
+	background: var(--secondary) !important;
+	border-color: var(--border) !important;
+	color: var(--secondary-foreground) !important;
+}
+
+.activity-chip-destructive-chip {
+	background: var(--destructive) !important;
+	border-color: var(--destructive-border) !important;
+	color: var(--destructive-foreground) !important;
+}
+
+.activity-chip-priority-baja {
+	background: var(--info) !important;
+	border-color: var(--info-border) !important;
+	color: var(--info-foreground) !important;
+}
+
+.activity-chip-priority-media {
+	background: var(--warning) !important;
+	border-color: var(--warning-border) !important;
+	color: var(--warning-foreground) !important;
+}
+
+.activity-chip-priority-normal {
+	background: var(--warning) !important;
+	border-color: var(--warning-border) !important;
+	color: var(--warning-foreground) !important;
+}
+
+.activity-chip-priority-alta {
+	background: var(--destructive-border) !important;
+	border-color: var(--destructive-foreground) !important;
+	color: var(--destructive) !important;
 }
