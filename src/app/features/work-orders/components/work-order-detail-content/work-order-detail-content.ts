@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
+import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { NotificationService } from '../../../../core';
 import { workOrderPriorityVariant, workOrderStatusVariant, type WorkOrderPriority, type WorkOrderStatus } from '../../models';
 import { WorkOrdersService } from '../../services';
@@ -24,6 +25,7 @@ import {
 		HlmBadgeImports,
 		HlmButtonImports,
 		HlmTabsImports,
+		HlmAlertDialogImports,
 		WorkOrderDetailsSectionComponent,
 		WorkOrderChecklistSectionComponent,
 		WorkOrderGallerySectionComponent,

@@ -7,6 +7,8 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmBreadCrumbImports } from '@spartan-ng/helm/breadcrumb';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
+import { NotificationService } from '../../core/notifications/notification.service';
+import { toast } from '@spartan-ng/brain/sonner';
 import { filter, map, startWith } from 'rxjs/operators';
 
 type Crumb = { label: string; url?: string; current: boolean };
@@ -46,6 +48,7 @@ type Crumb = { label: string; url?: string; current: boolean };
 						class="relative"
 						aria-label="Abrir notificaciones"
 						title="Notificaciones"
+						(click)="showNotifications()"
 					>
 						<ng-icon name="lucideBell" class="size-4" />
 						<span class="bg-destructive absolute top-1 right-1 size-2 rounded-full"></span>
@@ -57,6 +60,7 @@ type Crumb = { label: string; url?: string; current: boolean };
 })
 export class SiteHeader {
 	private readonly _router = inject(Router);
+	private readonly _notificationService = inject(NotificationService);
 
 	private readonly _currentUrl = toSignal(
 		this._router.events.pipe(
@@ -98,6 +102,35 @@ export class SiteHeader {
 			return [{ label: 'Inventario', current: true }];
 		}
 
+		if (url.startsWith('/app/settings')) {
+			return [{ label: 'Configuración', current: true }];
+		}
+
 		return [{ label: 'Dashboard', current: true }];
 	});
+
+	protected showNotifications(): void {
+		const notifs = this._notificationService.notifications();
+		if (notifs.length === 0) {
+			toast.info('No hay notificaciones nuevas.');
+			return;
+		}
+
+		for (const notification of [...notifs].reverse()) {
+			switch (notification.type) {
+				case 'success':
+					toast.success(notification.message);
+					break;
+				case 'warning':
+					toast.warning(notification.message);
+					break;
+				case 'error':
+					toast.error(notification.message);
+					break;
+				case 'info':
+				default:
+					toast.info(notification.message);
+			}
+		}
+	}
 }

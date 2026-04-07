@@ -29,14 +29,6 @@ export class WorkOrderNotesSectionComponent {
 	protected readonly nuevaNotaInterna = signal('');
 	protected readonly nuevaNotaCliente = signal('');
 
-	protected registrarFirma(): void {
-		const order = this.order();
-		if (!order) return;
-		this._service.registerClientSignature(order.id, this.firmaNombre());
-		this.firmaNombre.set('');
-		this._notification.success('Firma del cliente registrada.');
-	}
-
 	protected agregarNotaInterna(): void {
 		const order = this.order();
 		if (!order) return;

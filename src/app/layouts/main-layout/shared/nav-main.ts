@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideBadgeCheck,
@@ -14,6 +15,7 @@ import {
 	lucideUsers,
 } from '@ng-icons/lucide';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
+import { filter, map, startWith } from 'rxjs/operators';
 
 @Component({
 	selector: 'spartan-nav-main',
@@ -53,6 +55,14 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 })
 export class NavMain {
 	private readonly _router = inject(Router);
+	private readonly _currentUrl = toSignal(
+		this._router.events.pipe(
+			filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+			map((event) => event.urlAfterRedirects),
+			startWith(this._router.url),
+		),
+		{ initialValue: this._router.url },
+	);
 
 	public readonly sections = input.required<
 		{
@@ -67,7 +77,7 @@ export class NavMain {
 	>();
 
 	protected isRouteActive(url: string, exact = false): boolean {
-		const current = this._router.url;
+		const current = this._currentUrl();
 		return exact ? current === url : current === url || current.startsWith(`${url}/`);
 	}
 }

@@ -1,4 +1,5 @@
 import { APP_INITIALIZER, ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideNativeDateAdapter } from '@spartan-ng/brain/date-time';
 import { provideIcons } from '@ng-icons/core';
@@ -10,6 +11,7 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(),
     provideRouter(routes),
     provideNativeDateAdapter(),
     provideSpanishCalendarI18n(),

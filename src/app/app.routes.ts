@@ -13,6 +13,11 @@ export const routes: Routes = [
 		loadComponent: () => import('./layouts/auth-layout'),
 	},
 	{
+		path: 'settings',
+		pathMatch: 'full',
+		redirectTo: 'app/settings',
+	},
+	{
 		path: 'app',
 		canActivate: [authGuard],
 		loadComponent: () => import('./layouts/main-layout'),
@@ -69,6 +74,10 @@ export const routes: Routes = [
 			{
 				path: 'ordenes-trabajo/:id',
 				loadComponent: () => import('./features/work-orders').then((m) => m.WorkOrderDetailPageComponent),
+			},
+			{
+				path: 'settings',
+				loadComponent: () => import('./features/settings').then((m) => m.SettingsPageComponent),
 			},
 		],
 	},

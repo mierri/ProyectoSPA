@@ -1,0 +1,58 @@
+<div class="roles-users-layout">
+	<section hlmCard>
+		<div hlmCardHeader>
+			<h2 hlmCardTitle>Roles</h2>
+			<p hlmCardDescription>Roles disponibles en el modulo de KPIs.</p>
+		</div>
+		<div hlmCardContent>
+			<div hlmTableContainer>
+				<table hlmTable>
+					<thead hlmTHead>
+						<tr hlmTr>
+							<th hlmTh>Rol</th>
+						</tr>
+					</thead>
+					<tbody hlmTBody>
+						@for (role of roles; track role) {
+							<tr hlmTr>
+								<td hlmTd>{{ role }}</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+
+	<section hlmCard>
+		<div hlmCardHeader class="users-header">
+			<div>
+				<h2 hlmCardTitle>Usuarios del sistema</h2>
+				<p hlmCardDescription>Administra acceso y rol asignado por usuario.</p>
+			</div>
+			<button hlmBtn type="button">Nuevo Usuario</button>
+		</div>
+		<div hlmCardContent>
+			<div hlmTableContainer>
+				<table hlmTable>
+					<thead hlmTHead>
+						<tr hlmTr>
+							<th hlmTh>Nombre</th>
+							<th hlmTh>Correo</th>
+							<th hlmTh>Rol asignado</th>
+						</tr>
+					</thead>
+					<tbody hlmTBody>
+						@for (user of users; track user.email) {
+							<tr hlmTr>
+								<td hlmTd>{{ user.name }}</td>
+								<td hlmTd>{{ user.email }}</td>
+								<td hlmTd>{{ user.role }}</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+</div>

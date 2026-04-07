@@ -77,6 +77,7 @@
 
 	<div class="subsection">
 		<h3 class="text-sm font-medium">Vehiculo</h3>
+		<p class="text-muted-foreground text-xs">Busca por VIN o escribe en marca/modelo para consultar CarQuery.</p>
 		<div class="form-grid compact">
 			<label class="field"><span>Tipo</span>
 				<hlm-select [value]="tipoVehiculo()" (valueChange)="onVehicleTypeChange($event ?? 'Auto')">
@@ -92,11 +93,62 @@
 					</hlm-select-content>
 				</hlm-select>
 			</label>
-			<label class="field"><span>Marca</span><input hlmInput [value]="marca()" (input)="marca.set(($any($event.target)).value)" /></label>
-			<label class="field"><span>Modelo</span><input hlmInput [value]="modelo()" (input)="modelo.set(($any($event.target)).value)" /></label>
-			<label class="field"><span>Anio</span><input hlmInput type="number" [value]="anio()" (input)="anio.set(+($any($event.target)).value || anio())" /></label>
+			<label class="field vin-field">
+				<span>VIN</span>
+				<div class="vin-row">
+					<input hlmInput [value]="vin()" (input)="onVinInput(($any($event.target)).value)" />
+					<button hlmBtn type="button" variant="outline" [disabled]="isVinLookupLoading()" (click)="lookupVehicleByVin()">Buscar VIN</button>
+				</div>
+			</label>
+			<label class="field">
+				<span>Marca</span>
+				<hlm-combobox [value]="marca()" (valueChange)="onVehicleMakeSelected(($event ?? '') + '')">
+					<hlm-combobox-input placeholder="Escribe y selecciona marca" (input)="onMakeInputChange(($any($event.target)).value)" />
+					<hlm-combobox-content *hlmComboboxPortal>
+						<div hlmComboboxList>
+							<hlm-combobox-empty>@if (isVehicleLookupLoading()) { Cargando marcas... } @else { Sin resultados }</hlm-combobox-empty>
+							<div hlmComboboxGroup>
+								@for (make of vehicleMakes(); track make) {
+									<hlm-combobox-item [value]="make" (click)="onVehicleMakeSelected(make)">{{ make }}</hlm-combobox-item>
+								}
+							</div>
+						</div>
+					</hlm-combobox-content>
+				</hlm-combobox>
+			</label>
+			<label class="field">
+				<span>Modelo</span>
+				<hlm-combobox [value]="modelo()" (valueChange)="onVehicleModelSelected(($event ?? '') + '')">
+					<hlm-combobox-input placeholder="Escribe y selecciona modelo" (input)="onModelInputChange(($any($event.target)).value)" />
+					<hlm-combobox-content *hlmComboboxPortal>
+						<div hlmComboboxList>
+							<hlm-combobox-empty>@if (!marca()) { Selecciona una marca primero } @else if (isVehicleLookupLoading()) { Cargando modelos... } @else { Sin resultados }</hlm-combobox-empty>
+							<div hlmComboboxGroup>
+								@for (model of vehicleModels(); track model) {
+									<hlm-combobox-item [value]="model" (click)="onVehicleModelSelected(model)">{{ model }}</hlm-combobox-item>
+								}
+							</div>
+						</div>
+					</hlm-combobox-content>
+				</hlm-combobox>
+			</label>
+			<label class="field">
+				<span>Anio</span>
+				<hlm-combobox [value]="anio().toString()" (valueChange)="onVehicleYearSelected(($event ?? '') + '')">
+					<hlm-combobox-input placeholder="Selecciona anio" (input)="onYearInputChange(($any($event.target)).value)" />
+					<hlm-combobox-content *hlmComboboxPortal>
+						<div hlmComboboxList>
+							<hlm-combobox-empty>@if (!modelo()) { Selecciona un modelo primero } @else { Sin resultados }</hlm-combobox-empty>
+							<div hlmComboboxGroup>
+								@for (year of filteredVehicleYears(); track year) {
+									<hlm-combobox-item [value]="year.toString()" (click)="onVehicleYearSelected(year.toString())">{{ year }}</hlm-combobox-item>
+								}
+							</div>
+						</div>
+					</hlm-combobox-content>
+				</hlm-combobox>
+			</label>
 			<label class="field"><span>Placas</span><input hlmInput [value]="placas()" (input)="placas.set(($any($event.target)).value)" /></label>
-			<label class="field"><span>VIN</span><input hlmInput [value]="vin()" (input)="vin.set(($any($event.target)).value)" /></label>
 			<label class="field"><span>Kilometraje</span><input hlmInput type="number" [value]="kilometraje()" (input)="kilometraje.set(+($any($event.target)).value || 0)" /></label>
 		</div>
 	</div>
@@ -107,8 +159,37 @@
 			<textarea hlmTextarea rows="3" [value]="problema()" (input)="problema.set(($any($event.target)).value)"></textarea>
 		</label>
 		<label class="field">
-			<span>Diagnostico tecnico</span>
+			<div class="field-header">
+				<span>Diagnostico tecnico</span>
+				<button hlmBtn type="button" size="sm" variant="outline" [disabled]="recallsLoading() || !canSearchRecalls()" (click)="searchRecalls()">
+					Buscar retiros
+				</button>
+			</div>
 			<textarea hlmTextarea rows="3" [value]="diagnostico()" (input)="diagnostico.set(($any($event.target)).value)"></textarea>
+			@if (recallsLoading()) {
+				<p class="text-muted-foreground text-xs">Consultando retiros de seguridad en NHTSA...</p>
+			}
+			@if (recallsError() && !recallsLoading()) {
+				<p class="recalls-error">{{ recallsError() }}</p>
+			}
+			@if (recalls().length > 0) {
+				<div class="recalls-list">
+					@for (recall of recalls(); track recall.campaignNumber) {
+						<article class="recall-item">
+							<p class="recall-title">Retiro {{ recall.campaignNumber || 'N/D' }} · {{ recall.component || 'Componente no especificado' }}</p>
+							@if (recall.summary) {
+								<p class="recall-text"><strong>Resumen:</strong> {{ recall.summary }}</p>
+							}
+							@if (recall.consequence) {
+								<p class="recall-text"><strong>Riesgo:</strong> {{ recall.consequence }}</p>
+							}
+							@if (recall.remedy) {
+								<p class="recall-text"><strong>Remedio:</strong> {{ recall.remedy }}</p>
+							}
+						</article>
+					}
+				</div>
+			}
 		</label>
 	</div>
 

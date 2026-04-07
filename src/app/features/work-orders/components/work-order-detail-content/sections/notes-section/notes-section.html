@@ -29,16 +29,5 @@
 				</div>
 			</hlm-card>
 		</section>
-
-		<hlm-card>
-			<hlm-card-header><h3 hlmCardTitle>Firma digital del cliente</h3></hlm-card-header>
-			<div hlmCardContent class="space-y-3">
-				<input hlmInput type="text" placeholder="Nombre del cliente" [value]="firmaNombre()" (input)="firmaNombre.set(($any($event.target)).value)" />
-				<button hlmBtn type="button" (click)="registrarFirma()">Registrar firma</button>
-				@if (ot.firmaCliente; as firma) {
-					<p class="text-sm">Firmado por <strong>{{ firma.nombreCliente }}</strong> el {{ firma.timestamp }}</p>
-				}
-			</div>
-		</hlm-card>
 	</div>
 }
