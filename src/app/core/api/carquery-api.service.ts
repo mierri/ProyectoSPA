@@ -3,6 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { catchError, map, of, timeout, type Observable } from 'rxjs';
 import type { CarQueryDecodedVin, VehicleRecallItem } from './carquery-api.models';
 
+/**
+	Aquí se implementan 2 APIs diferentes, una para obtener la información de 
+	marcas/modelos/años a partir de la API de NHTSA (VPIC) y otra para obtener 
+	los recalls a partir de la API de NHTSA (NHTSA Recalls).
+
+**/
+
 interface VpicListEnvelope<T> {
 	Results?: T[];
 }
