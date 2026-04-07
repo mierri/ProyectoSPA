@@ -1,10 +1,7 @@
-// Payment methods for daily cash
 export type PaymentMethod = 'Efectivo' | 'Transferencia' | 'Tarjeta';
 
-// Cash entry/exit types
 export type CashTransactionType = 'Ingreso' | 'Egreso';
 
-// Daily cash entry
 export interface DailyCashEntry {
 	id: string;
 	fecha: string;
@@ -17,7 +14,6 @@ export interface DailyCashEntry {
 	usuario: string;
 }
 
-// Daily cash summary
 export interface DailyCashSummary {
 	fecha: string;
 	ingresosCaja: number;
@@ -31,7 +27,6 @@ export interface DailyCashSummary {
 	};
 }
 
-// Accounts Receivable (CxC)
 export interface AccountReceivable {
 	id: string;
 	otId: string;
@@ -48,7 +43,6 @@ export interface AccountReceivable {
 
 export type ReceivableStatus = 'Pendiente' | 'Parcial' | 'Pagado' | 'Vencido';
 
-// Accounts Payable (CxP)
 export interface AccountPayable {
 	id: string;
 	proveedor: string;
@@ -64,7 +58,6 @@ export interface AccountPayable {
 
 export type PayableStatus = 'Pendiente' | 'Parcial' | 'Pagado' | 'Vencido';
 
-// Report data structures
 export interface OTsByPeriodData {
 	periodo: string;
 	cantidad: number;
@@ -96,7 +89,6 @@ export interface TechnicianKPIData {
 	satisfaccion?: number;
 }
 
-// Comparative chart data
 export interface MonthComparative {
 	mes: string;
 	ingresos: number;
@@ -113,7 +105,6 @@ export interface ServicePopularity {
 	tendencia: 'up' | 'down' | 'stable';
 }
 
-// Report configuration
 export interface ReportFilter {
 	startDate: string;
 	endDate: string;

@@ -15,7 +15,7 @@ import { AccountsPayableComponent } from '../components/accounts-payable/account
 import { ReportsDashboardComponent } from '../components/reports-dashboard/reports-dashboard';
 import { ChartsComparativeComponent } from '../components/charts-comparative/charts-comparative';
 
-type FinanzasTab = 'caja' | 'cobrar' | 'pagar' | 'reportes' | 'graficas';
+type FinanceTabType = 'caja' | 'cobrar' | 'pagar' | 'reportes' | 'graficas';
 
 @Component({
 	selector: 'app-finanzas-page',
@@ -94,9 +94,9 @@ type FinanzasTab = 'caja' | 'cobrar' | 'pagar' | 'reportes' | 'graficas';
 			</section>
 		</div>
 	`,
-	styleUrl: './finanzas.page.css',
+	styleUrl: './finances.page.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FinanzasPageComponent {
-	readonly selectedTab = signal<FinanzasTab>('caja');
+export class FinancesPageComponent {
+	readonly selectedTab = signal<FinanceTabType>('caja');
 }

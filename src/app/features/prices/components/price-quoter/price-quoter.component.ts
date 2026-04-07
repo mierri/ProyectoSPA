@@ -66,7 +66,6 @@ export class PriceQuoterComponent {
 
     const quantity = Math.max(1, this.selectedQuantity());
     
-    // Parse price depending on type
     let priceStr = '';
     if ('precioAuto' in servicio) {
       priceStr = servicio['precioAuto'];

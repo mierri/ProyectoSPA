@@ -162,8 +162,7 @@
 .comment-input-group input {
   flex: 1;
 }
-
-/* Scrollbar styling */
+ 
 .comments-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -177,8 +176,7 @@
   background: var(--muted-foreground);
   border-radius: 3px;
 }
-
-/* Tag styles */
+ 
 .tag-administrative {
   background: hsl(210, 100%, 50%);
   color: white;

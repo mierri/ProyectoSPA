@@ -5,8 +5,8 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideCheck, lucideX, lucideClock } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
-import { FinanzasDataService } from '../../services/finanzas-data.service';
-import type { AccountPayable, PayableStatus } from '../../models/finanzas.models';
+import { FinancesDataService } from '../../services/finances-data.service';
+import type { AccountPayable, PayableStatus } from '../../models/finances.models';
 
 @Component({
 	selector: 'app-accounts-payable',
@@ -28,7 +28,6 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 	],
 	template: `
 		<div class="space-y-6">
-			<!-- Header -->
 			<div class="flex justify-between items-start">
 				<div>
 					<h2 class="text-2xl font-bold">Cuentas por Pagar</h2>
@@ -36,7 +35,6 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 				</div>
 			</div>
 
-			<!-- Summary Cards -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div hlmCard class="p-4">
 					<div class="text-sm text-muted-foreground mb-2">Total Adeudado</div>
@@ -56,7 +54,6 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 				</div>
 			</div>
 
-			<!-- Status Breakdown -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div hlmCard class="p-4">
 					<div class="text-xs font-semibold mb-2" [style.color]="'var(--warning-foreground)'">PENDIENTE</div>
@@ -76,7 +73,6 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 				</div>
 			</div>
 
-			<!-- Payables Table -->
 			<div>
 				<h3 class="font-semibold mb-3">Detalle de Adeudos</h3>
 				<div hlmCard>
@@ -120,7 +116,6 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 				</div>
 			</div>
 
-			<!-- Summary Section -->
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div hlmCard class="p-4" [style.backgroundColor]="'var(--info)'">
 					<h3 class="font-semibold mb-2">Información General</h3>
@@ -162,7 +157,7 @@ import type { AccountPayable, PayableStatus } from '../../models/finanzas.models
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountsPayableComponent {
-	private readonly dataService = inject(FinanzasDataService);
+	private readonly dataService = inject(FinancesDataService);
 
 	readonly payables = signal<AccountPayable[]>([]);
 

@@ -33,7 +33,6 @@
   min-width: 90vw !important;
 }
 
-/* Global dialog overrides using ::ng-deep */
 :host {
   display: block;
 }

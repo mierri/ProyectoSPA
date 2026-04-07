@@ -97,7 +97,6 @@ export class ActivitiesSectionComponent implements OnInit {
       activities: this.filteredActivities().filter(a => a.etiqueta === tag),
     }));
     
-    // Add "Sin etiqueta" column for activities without a tag
     const untaggedActivities = this.filteredActivities().filter(a => !a.etiqueta || a.etiqueta.trim() === '');
     if (untaggedActivities.length > 0 || columnsByTag.length > 0) {
       columnsByTag.push({

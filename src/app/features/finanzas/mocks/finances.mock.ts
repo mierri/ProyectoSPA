@@ -6,9 +6,8 @@ import type {
 	ServicePopularity,
 	TechnicianKPIData,
 	MonthComparative,
-} from '../models/finanzas.models';
+} from '../models/finances.models';
 
-// Daily cash entries for today
 export const dailyCashEntriesMock: DailyCashEntry[] = [
 	{
 		id: 'cash-001',
@@ -61,7 +60,6 @@ export const dailyCashEntriesMock: DailyCashEntry[] = [
 	},
 ];
 
-// Accounts receivable sample data
 export const accountsReceivableMock: AccountReceivable[] = [
 	{
 		id: 'cxc-001',
@@ -128,7 +126,6 @@ export const accountsReceivableMock: AccountReceivable[] = [
 	},
 ];
 
-// Accounts payable sample data
 export const accountsPayableMock: AccountPayable[] = [
 	{
 		id: 'cxp-001',
@@ -190,7 +187,6 @@ export const accountsPayableMock: AccountPayable[] = [
 	},
 ];
 
-// Services popularity data
 export const servicesPopularityMock: ServicePopularity[] = [
 	{
 		servicio: 'Cambio de aceite',
@@ -236,7 +232,6 @@ export const servicesPopularityMock: ServicePopularity[] = [
 	},
 ];
 
-// Technician KPI data
 export const technicianKPIMock: TechnicianKPIData[] = [
 	{
 		tecnico: 'Carlos López',
@@ -285,7 +280,6 @@ export const technicianKPIMock: TechnicianKPIData[] = [
 	},
 ];
 
-// Monthly comparative data
 export const monthComparativeMock: MonthComparative[] = [
 	{
 		mes: 'Octubre',
@@ -331,7 +325,6 @@ export const monthComparativeMock: MonthComparative[] = [
 	},
 ];
 
-// Daily cash summary for today
 export function generateDailyCashSummary(): DailyCashSummary {
 	const today = new Date().toISOString().split('T')[0];
 	const ingresos = dailyCashEntriesMock

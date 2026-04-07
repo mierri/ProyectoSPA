@@ -52,7 +52,6 @@ export class KpisService {
 		}));
 	});
 
-	// Calculate KPI progress based on completed activities for that role
 	public readonly kpisWithCalculatedProgress = computed(() => {
 		return this._kpis().map(kpi => {
 			const roleActivities = this._activities().filter(a => a.roleAsignado === kpi.roleResponsable);
@@ -70,7 +69,6 @@ export class KpisService {
 		});
 	});
 
-	// Employees
 	public createEmployee(input: CreateEmployeeInput): Employee {
 		const employee: Employee = {
 			id: `emp-${Date.now()}`,
@@ -100,7 +98,6 @@ export class KpisService {
 		return this._employees().length < initial;
 	}
 
-	// KPIs
 	public createKPI(input: CreateKPIInput): KPI {
 		const kpi: KPI = {
 			id: `kpi-${Date.now()}`,
@@ -128,7 +125,6 @@ export class KpisService {
 		return this._kpis().length < initial;
 	}
 
-	// Activities
 	public createActivity(input: CreateActivityInput): Activity {
 		const activity: Activity = {
 			id: `act-${Date.now()}`,
@@ -167,7 +163,6 @@ export class KpisService {
 		return this._activities().length < initial;
 	}
 
-	// Tags
 	public createTag(input: CreateTagInput): ActivityTag {
 		const tag: ActivityTag = {
 			id: `tag-${Date.now()}`,
@@ -189,7 +184,6 @@ export class KpisService {
 		const initial = this._tags().length;
 		this._tags.update(tags => tags.filter(t => t.id !== id));
 		if (this._tags().length < initial) {
-			// Remove tag from all activities
 			this._activities.update(acts => 
 				acts.map(a => ({
 					...a,
@@ -201,7 +195,6 @@ export class KpisService {
 		return false;
 	}
 
-	// Organization Info
 	public updateOrganizationInfo(updates: Partial<OrganizationInfo>): boolean {
 		this._organizationInfo.update(org => ({ ...org, ...updates }));
 		return true;

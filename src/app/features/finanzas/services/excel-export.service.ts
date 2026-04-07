@@ -1,16 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as XLSX from 'xlsx';
 
-/**
- * Excel Export Service - Generates downloadable Excel files
- * Requires: npm install xlsx
- */
 @Injectable({ providedIn: 'root' })
 export class ExcelExportService {
 
-	/**
-	 * Export daily cash entries to Excel
-	 */
 	exportDailyCash(entries: any[]): void {
 		const data = [
 			['REPORTE DE CAJA DIARIA', '', '', '', ''],
@@ -33,9 +26,6 @@ export class ExcelExportService {
 		this.createAndDownloadExcel(data, 'caja-diaria.xlsx');
 	}
 
-	/**
-	 * Export accounts receivable to Excel
-	 */
 	exportAccountsReceivable(accounts: any[]): void {
 		const total = accounts.reduce((sum, a: any) => sum + a.monto, 0);
 		const received = accounts.reduce((sum, a: any) => sum + a.montoRecibido, 0);
@@ -66,9 +56,6 @@ export class ExcelExportService {
 		this.createAndDownloadExcel(data, 'cuentas-por-cobrar.xlsx');
 	}
 
-	/**
-	 * Export accounts payable to Excel
-	 */
 	exportAccountsPayable(accounts: any[]): void {
 		const total = accounts.reduce((sum, a: any) => sum + a.monto, 0);
 		const paid = accounts.reduce((sum, a: any) => sum + a.montoPagado, 0);
@@ -97,9 +84,7 @@ export class ExcelExportService {
 		this.createAndDownloadExcel(data, 'cuentas-por-pagar.xlsx');
 	}
 
-	/**
-	 * Export services summary to Excel
-	 */
+	
 	exportServicesSummary(workOrders: any[]): void {
 		const serviceSummary = new Map<string, { count: number; total: number }>();
 
@@ -126,9 +111,6 @@ export class ExcelExportService {
 		this.createAndDownloadExcel(data, 'resumen-servicios.xlsx');
 	}
 
-	/**
-	 * Export expenses to Excel
-	 */
 	exportExpenses(expenses: any[]): void {
 		const data = [
 			['REPORTE DE GASTOS', '', '', '', ''],
@@ -145,16 +127,12 @@ export class ExcelExportService {
 		this.createAndDownloadExcel(data, 'gastos.xlsx');
 	}
 
-	/**
-	 * Generate and download Excel file
-	 */
 	private createAndDownloadExcel(data: any[][], filename: string): void {
 		try {
 			const worksheet = XLSX.utils.aoa_to_sheet(data);
 			const workbook = XLSX.utils.book_new();
 			XLSX.utils.book_append_sheet(workbook, worksheet, 'Reporte');
 
-			// Set column widths
 			const maxWidth = 30;
 			const colWidths = data[0].map(() => ({ wch: maxWidth }));
 			worksheet['!cols'] = colWidths;

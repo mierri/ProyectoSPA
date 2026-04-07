@@ -75,7 +75,6 @@
 	max-width: 80rem;
 }
 
-/* Scale up calendar only in this payments view */
 ::ng-deep .calendar-panel hlm-calendar {
 	display: flex;
 }
@@ -85,12 +84,10 @@
 	width: 100%;
 }
 
-/* Increase table size */
 ::ng-deep .calendar-panel table {
 	width: 100%;
 }
 
-/* Make weekday headers bigger */
 ::ng-deep .calendar-panel th {
 	width: 70px ;
 	height: 60px ;
@@ -102,7 +99,6 @@
 	justify-content: center ;
 }
 
-/* Make table cells bigger */
 ::ng-deep .calendar-panel td {
 	width: 70px ;
 	height: 60px ;
@@ -110,7 +106,6 @@
 	margin: 0 ;
 }
 
-/* Make day buttons bigger */
 ::ng-deep .calendar-panel button[aria-label] {
 	width: 64px ;
 	height: 54px ;
@@ -119,13 +114,11 @@
 	padding: 0 ;
 }
 
-/* Increase row gap */
 ::ng-deep .calendar-panel tr {
 	gap: 0.375rem ;
 	display: flex;
 }
 
-/* Space between rows */
 ::ng-deep .calendar-panel tbody tr {
 	margin-bottom: 0.375rem;
 }

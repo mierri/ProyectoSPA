@@ -1,1 +1,1 @@
-export * from './finanzas.mock';
+export * from './finances.mock';

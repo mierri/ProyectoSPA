@@ -1,24 +1,15 @@
 import { Injectable } from '@angular/core';
 
-// Import pdfMake types
 declare var pdfMake: any;
 
-/**
- * PDF Export Service - Generates downloadable PDF files
- * Requires: npm install pdfmake
- */
 @Injectable({ providedIn: 'root' })
 export class PdfExportService {
 	constructor() {
-		// Initialize pdfMake fonts if available
 		if (typeof pdfMake !== 'undefined' && pdfMake.vfs === undefined) {
 			// Fonts will be registered by build process
 		}
 	}
 
-	/**
-	 * Export daily cash entries to PDF (real download)
-	 */
 	exportDailyCash(entries: any[]): void {
 		const today = new Date().toLocaleDateString('es-MX');
 		const ingresos = entries.filter((e: any) => e.tipo === 'Ingreso').reduce((sum, e: any) => sum + e.monto, 0);
@@ -79,9 +70,6 @@ export class PdfExportService {
 		this.downloadPDF(docDefinition, 'caja-diaria.pdf');
 	}
 
-	/**
-	 * Export accounts receivable to PDF
-	 */
 	exportAccountsReceivable(accounts: any[]): void {
 		const total = accounts.reduce((sum, a: any) => sum + a.monto, 0);
 		const received = accounts.reduce((sum, a: any) => sum + a.montoRecibido, 0);
@@ -135,9 +123,6 @@ export class PdfExportService {
 		this.downloadPDF(docDefinition, 'cuentas-por-cobrar.pdf');
 	}
 
-	/**
-	 * Export accounts payable to PDF
-	 */
 	exportAccountsPayable(accounts: any[]): void {
 		const total = accounts.reduce((sum, a: any) => sum + a.monto, 0);
 		const paid = accounts.reduce((sum, a: any) => sum + a.montoPagado, 0);
@@ -190,9 +175,6 @@ export class PdfExportService {
 		this.downloadPDF(docDefinition, 'cuentas-por-pagar.pdf');
 	}
 
-	/**
-	 * Export services summary to PDF
-	 */
 	exportServicesSummary(workOrders: any[]): void {
 		const serviceSummary = new Map<string, { count: number; total: number }>();
 
@@ -249,9 +231,6 @@ export class PdfExportService {
 		this.downloadPDF(docDefinition, 'resumen-servicios.pdf');
 	}
 
-	/**
-	 * Generate and download PDF - handles pdfMake library
-	 */
 	private downloadPDF(docDefinition: any, filename: string): void {
 		if (typeof pdfMake === 'undefined') {
 			alert('⚠️ pdfMake no está disponible. Asegúrate de haber instalado: npm install pdfmake');

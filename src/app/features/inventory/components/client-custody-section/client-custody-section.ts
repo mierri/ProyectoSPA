@@ -56,7 +56,6 @@ export class ClientCustodySectionComponent {
 		
 		const isEditing = !!this.editingEntryId();
 		if (isEditing) {
-			// Editar entrada existente
 			const entryId = this.editingEntryId();
 			this._inventoryService.deleteCustodyEntry(entryId);
 		}

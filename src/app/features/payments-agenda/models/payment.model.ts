@@ -3,7 +3,7 @@ export interface Payment {
   concepto: string;
   tipo: 'Periódico' | 'No Periódico';
   categoria: 'Renta' | 'Nómina' | 'Servicios' | 'Suscripciones' | 'Créditos' | 'Proveedores' | 'Mantenimiento' | 'Extraordinario';
-  fechaVencimiento: string; // ISO date
+  fechaVencimiento: string; 
   estado: 'Pendiente' | 'Pagado' | 'Vencido';
   montoPresupuestado: number;
   montoPagado: number;
@@ -13,6 +13,6 @@ export interface Payment {
 
 export interface PaymentAlert {
   paymentId: string;
-  fechaAlerta: string; // ISO date
+  fechaAlerta: string; 
   enviado: boolean;
 }

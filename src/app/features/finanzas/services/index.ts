@@ -1,4 +1,4 @@
-export * from './finanzas.service';
-export * from './finanzas-data.service';
+export * from './finances.service';
+export * from './finances-data.service';
 export * from './pdf-export.service';
 export * from './excel-export.service';

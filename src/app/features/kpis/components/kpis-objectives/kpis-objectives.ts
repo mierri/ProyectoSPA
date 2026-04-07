@@ -62,10 +62,10 @@ export class KpisObjectivesComponent {
 			descripcion: this.newKPI.descripcion,
 			roleResponsable: this.newKPI.roleResponsable as any,
 			meta: this.newKPI.meta,
-			progreso: 0, // Will be calculated
+			progreso: 0,
 			periodo: this.newKPI.periodo,
 			fechaInicio: today,
-			fechaFin: today, // Can be updated later
+			fechaFin: today,
 		});
 
 		this.resetNewKPI();

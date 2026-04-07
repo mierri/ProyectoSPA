@@ -17,9 +17,7 @@ export class IndicatorsDashboardComponent {
 
 	getIconName(icon: string): string {
 		if (!icon) return 'lucideActivity';
-		// Convert kebab-case to camelCase
 		const camelCase = icon.replace(/-([a-z0-9])/g, (_, char) => char.toUpperCase());
-		// Capitalize first letter and prepend 'lucide'
 		const capitalized = camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 		return `lucide${capitalized}`;
 	}

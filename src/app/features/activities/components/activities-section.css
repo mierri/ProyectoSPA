@@ -79,8 +79,7 @@
 	border: none !important;
 	background: transparent !important;
 }
-
-/* Override any hlmCardContent padding */
+ 
 .kanban-column[hlm-card-content] .kanban-drop-zone,
 .kanban-column .kanban-drop-zone {
 	padding: 1rem;
@@ -137,8 +136,7 @@
 .cdk-drag-placeholder {
 	opacity: 0.35;
 }
-
-/* Activity priority chip colors */
+ 
 .act-chip-priority-alta {
 	background: var(--destructive-border) !important;
 	border-color: var(--destructive) !important;
@@ -156,8 +154,7 @@
 	border-color: var(--input) !important;
 	color: var(--muted-foreground) !important;
 }
-
-/* Activity estado chip colors */
+ 
 .act-chip-estado-pendiente {
 	background: var(--muted) !important;
 	border-color: var(--input) !important;

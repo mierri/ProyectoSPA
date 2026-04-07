@@ -65,7 +65,7 @@ export const routes: Routes = [
 			},
 			{
 				path: 'finanzas-reportes',
-				loadComponent: () => import('./features/finanzas').then((m) => m.FinanzasPageComponent),
+				loadComponent: () => import('./features/finanzas').then((m) => m.FinancesPageComponent),
 			},
 			{
 				path: 'ordenes-trabajo',

@@ -12,7 +12,7 @@ import {
 } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
-import { FinanzasDataService } from '../../services/finanzas-data.service';
+import { FinancesDataService } from '../../services/finances-data.service';
 import { PdfExportService } from '../../services/pdf-export.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 
@@ -32,15 +32,12 @@ import { ExcelExportService } from '../../services/excel-export.service';
 	],
 	template: `
 		<div class="space-y-6">
-			<!-- Header -->
 			<div class="space-y-2">
 				<h2 class="text-2xl font-bold">Reportes y Exportaciones</h2>
 				<p class="text-muted-foreground">Descarga reportes en PDF y Excel con datos reales del sistema</p>
 			</div>
 
-			<!-- Reports Grid -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				<!-- Caja Diaria -->
 				<div hlmCard class="p-4 flex flex-col">
 					<div class="flex items-center gap-2 mb-3">
 						<ng-icon name="lucideTable2" class="w-5 h-5 text-blue-600" />
@@ -59,7 +56,6 @@ import { ExcelExportService } from '../../services/excel-export.service';
 					</div>
 				</div>
 
-				<!-- Cuentas por Cobrar -->
 				<div hlmCard class="p-4 flex flex-col">
 					<div class="flex items-center gap-2 mb-3">
 						<ng-icon name="lucideFileText" class="w-5 h-5 text-green-600" />
@@ -78,7 +74,6 @@ import { ExcelExportService } from '../../services/excel-export.service';
 					</div>
 				</div>
 
-				<!-- Cuentas por Pagar -->
 				<div hlmCard class="p-4 flex flex-col">
 					<div class="flex items-center gap-2 mb-3">
 						<ng-icon name="lucideFileText" class="w-5 h-5 text-orange-600" />
@@ -97,7 +92,6 @@ import { ExcelExportService } from '../../services/excel-export.service';
 					</div>
 				</div>
 
-				<!-- Resumen de Servicios -->
 				<div hlmCard class="p-4 flex flex-col">
 					<div class="flex items-center gap-2 mb-3">
 						<ng-icon name="lucideBarChart3" class="w-5 h-5 text-purple-600" />
@@ -116,7 +110,6 @@ import { ExcelExportService } from '../../services/excel-export.service';
 					</div>
 				</div>
 
-				<!-- Gastos -->
 				<div hlmCard class="p-4 flex flex-col">
 					<div class="flex items-center gap-2 mb-3">
 						<ng-icon name="lucideBarChart3" class="w-5 h-5 text-red-600" />
@@ -141,11 +134,10 @@ import { ExcelExportService } from '../../services/excel-export.service';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsDashboardComponent {
-	private readonly dataService = inject(FinanzasDataService);
+	private readonly dataService = inject(FinancesDataService);
 	private readonly pdfService = inject(PdfExportService);
 	private readonly excelService = inject(ExcelExportService);
 
-	// Daily Cash
 	exportDailyCashPDF(): void {
 		const entries = this.dataService.getDailyCashEntries();
 		this.pdfService.exportDailyCash(entries);
@@ -156,7 +148,6 @@ export class ReportsDashboardComponent {
 		this.excelService.exportDailyCash(entries);
 	}
 
-	// Receivables
 	exportReceivablesPDF(): void {
 		const accounts = this.dataService.getAccountsReceivable();
 		this.pdfService.exportAccountsReceivable(accounts);
@@ -167,7 +158,6 @@ export class ReportsDashboardComponent {
 		this.excelService.exportAccountsReceivable(accounts);
 	}
 
-	// Payables
 	exportPayablesPDF(): void {
 		const accounts = this.dataService.getAccountsPayable();
 		this.pdfService.exportAccountsPayable(accounts);
@@ -178,7 +168,6 @@ export class ReportsDashboardComponent {
 		this.excelService.exportAccountsPayable(accounts);
 	}
 
-	// Services Summary
 	exportServicesSummaryPDF(): void {
 		const workOrders = this.dataService.getCompletedWorkOrders();
 		this.pdfService.exportServicesSummary(workOrders);
@@ -189,7 +178,6 @@ export class ReportsDashboardComponent {
 		this.excelService.exportServicesSummary(workOrders);
 	}
 
-	// Expenses (Excel only)
 	exportExpensesExcel(): void {
 		const expenses = this.dataService.getExpenses();
 		this.excelService.exportExpenses(expenses);

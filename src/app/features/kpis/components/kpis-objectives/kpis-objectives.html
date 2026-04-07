@@ -50,7 +50,6 @@
 				} @else {
 					<div hlmCard>
 						<div class="flex flex-col gap-4 p-6">
-							<!-- Header -->
 							<div class="flex items-start justify-between gap-4">
 								<div class="flex-1 min-w-0">
 									<h3 class="font-semibold text-lg">{{ kpi.nombre }}</h3>
@@ -67,7 +66,6 @@
 								</div>
 							</div>
 
-							<!-- Metadata -->
 							<div class="grid grid-cols-3 gap-4 text-sm">
 								<div class="kpi-meta-card kpi-info">
 									<p class="kpi-meta-label">Meta</p>
@@ -83,12 +81,10 @@
 								</div>
 							</div>
 
-							<!-- Activity Stats -->
 							<div class="kpi-stats">
 								Actividades del rol: {{ kpi.roleCompletedCount }} completadas de {{ kpi.rolActivityCount }} total
 							</div>
 
-							<!-- Progress Bar -->
 							<div class="space-y-2">
 								<div class="flex justify-between text-xs">
 									<span class="font-medium">Progreso</span>

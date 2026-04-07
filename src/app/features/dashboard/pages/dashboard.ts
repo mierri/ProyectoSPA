@@ -4,7 +4,7 @@ import { FinancialSummaryComponent } from '../components';
 import { NotificationsAlertsComponent } from '../components';
 import { QuickAccessComponent } from '../components/quick-access';
 import { RecentWorkOrdersComponent } from '../components/recent-work-orders';
-import { FinancesService } from '../../finanzas/services/finanzas.service';
+import { FinancesService } from '../../finanzas/services/finances.service';
 import { NotificationService, type Notification } from '../../../core/notifications/notification.service';
 import type { FinancialSummaryItem, BadgeVariant } from '../models/dashboard.models';
 

@@ -38,11 +38,9 @@ export class ContactsService {
 
   getAllTags(): string[] {
     const tags = new Set<string>();
-    // Add existing tags from contacts
     this.contacts().forEach(contact => {
       contact.etiquetas.forEach(tag => tags.add(tag));
     });
-    // Add custom tags
     this.customTags().forEach(tag => tags.add(tag));
     return Array.from(tags).sort();
   }

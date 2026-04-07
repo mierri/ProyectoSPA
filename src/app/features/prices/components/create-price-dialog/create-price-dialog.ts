@@ -37,14 +37,12 @@ export class CreatePriceDialogComponent {
   protected readonly context = injectBrnDialogContext<CreatePriceDialogContext>();
   protected readonly isEditMode = !!this.context.servicio;
 
-  // Categoria seleccionada
   protected readonly selectedCategoria = signal(
     this.context.categoria || this.context.servicio?.categoriaPrincipal || 'Afinación y Otros'
   );
 
   protected readonly isTorno = computed(() => this.selectedCategoria() === 'Servicio de Torno');
 
-  // Campos para servicios automotrices
   protected readonly concepto = signal(
     this.context.servicio && 'concepto' in this.context.servicio ? 
     (this.context.servicio as ServicioAutomotriz).concepto : ''
@@ -74,7 +72,6 @@ export class CreatePriceDialogComponent {
     (this.context.servicio as ServicioAutomotriz).observacion : ''
   );
 
-  // Campos para servicios de torno
   protected readonly tamano = signal(
     this.context.servicio && 'tamano' in this.context.servicio ? 
     (this.context.servicio as ServicioTorno).tamano : ''

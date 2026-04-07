@@ -44,7 +44,6 @@ export class CreateContactDialogComponent {
   protected onEtiquetaChange(value: string): void {
     if (value.trim().length > 0) {
       this.etiqueta.set(value);
-      // Add new tag to available tags if it doesn't exist
       if (!this.availableTags.includes(value) && value.trim().length > 0) {
         this.availableTags.push(value);
         this.contactsService.addTag(value);

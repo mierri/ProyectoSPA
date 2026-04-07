@@ -5,18 +5,18 @@ export interface KPIIndicator {
 	valor: number;
 	unidad: string;
 	meta?: number;
-	variacion?: number; // Porcentaje de variación
+	variacion?: number; 
 	tendencia: 'up' | 'down' | 'stable';
 	descripcion: string;
 	ultimaActualizacion: string;
-	icon: string; // Nombre del icono lucide
+	icon: string; 
 }
 
 export interface KPICategory {
 	nombre: 'Commercial' | 'Operative' | 'Quality';
 	label: string;
 	indicadores: KPIIndicator[];
-	color: string; // CSS variable ref
+	color: string; 
 }
 
 export interface IndicatorsData {

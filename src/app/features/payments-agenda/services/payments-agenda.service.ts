@@ -7,14 +7,12 @@ export class PaymentsAgendaService {
   private payments = signal<Payment[]>([...PAYMENTS_MOCK]);
 
   private calculateEstado(payment: Payment): Payment['estado'] {
-    // Si ya está marcado como pagado, mantenerlo así
     if (payment.estado === 'Pagado') {
       return 'Pagado';
     }
 
-    // Comparar fecha de vencimiento con hoy
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Reset time to start of day
+    hoy.setHours(0, 0, 0, 0);
 
     const fechaVencimiento = new Date(payment.fechaVencimiento);
     fechaVencimiento.setHours(0, 0, 0, 0);

@@ -39,7 +39,7 @@ export class ActivityDetailDialogComponent {
 
   protected readonly activity = signal(this._context.activity);
   protected readonly newComment = signal('');
-  protected readonly currentUser = 'Admin'; // Could come from auth service
+  protected readonly currentUser = 'Admin';
 
   protected tagStyle(etiqueta: string): string {
     switch (etiqueta) {
@@ -82,7 +82,6 @@ export class ActivityDetailDialogComponent {
     this.activitiesService.addComment(this.activity().id, comment);
     this._context.onCommentAdded?.(comment);
 
-    // Update local activity
     this.activity.set({
       ...this.activity(),
       comentarios: [...this.activity().comentarios, comment]
@@ -95,7 +94,6 @@ export class ActivityDetailDialogComponent {
     this.activitiesService.deleteComment(this.activity().id, commentId);
     this._context.onCommentDeleted?.(commentId);
 
-    // Update local activity
     this.activity.set({
       ...this.activity(),
       comentarios: this.activity().comentarios.filter(c => c.id !== commentId)

@@ -13,8 +13,8 @@ export interface InventoryItem {
 	responsable: string;
 	stockActual: number;
 	stockMinimo: number;
-	precioVenta?: number; // For "Parte en venta"
-	precio?: number; // For "Herramienta", "Consumible", "Equipo"
+	precioVenta?: number; 
+	precio?: number; 
 	linkedPartId?: string;
 }
 
@@ -58,7 +58,7 @@ export interface CreateInventoryItemInput {
 	responsable: string;
 	stockActual: number;
 	stockMinimo: number;
-	precio?: number; // For Herramienta, Consumible, Equipo
-	precioVenta?: number; // For Parte en venta
+	precio?: number; 
+	precioVenta?: number; 
 	linkedPartId?: string;
 }

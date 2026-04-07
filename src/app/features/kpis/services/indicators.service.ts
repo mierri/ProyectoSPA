@@ -18,12 +18,10 @@ export class IndicatorsService {
 	public readonly periodStartDate = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString();
 	public readonly periodEndDate = this.currentDate;
 
-	// Compute client metadata derived from work orders (avoid effect loop)
 	private readonly _clientMetadata = computed(() => {
 		const workOrders = this._workOrdersService.workOrders();
 		const metadata = new Map<string, ClientMetadata>();
 
-		// Count orders per client in a single pass (O(n))
 		const clientOrderCounts = new Map<string, number>();
 		workOrders.forEach((wo) => {
 			const cliente = wo.cliente.trim();
@@ -31,7 +29,6 @@ export class IndicatorsService {
 			clientOrderCounts.set(cliente, (clientOrderCounts.get(cliente) || 0) + 1);
 		});
 
-		// Build metadata based on order counts
 		clientOrderCounts.forEach((count, cliente) => {
 			const tag: 'Nuevo' | 'Frecuente' | '' = count > 2 ? 'Frecuente' : 'Nuevo';
 			const firstOrder = workOrders.find((w) => w.cliente === cliente);
@@ -45,7 +42,6 @@ export class IndicatorsService {
 		return metadata;
 	});
 
-	// Commercial KPIs
 	public readonly clientesActuales = computed(() => {
 		const workOrders = this._workOrdersService.workOrders();
 		const clientes = [...new Set(workOrders.map((wo) => wo.cliente))];
@@ -94,7 +90,6 @@ export class IndicatorsService {
 		return Math.round((repetitivos / actuales) * 100);
 	});
 
-	// Operative KPIs
 	public readonly tiempoCicloPromedio = computed(() => {
 		const workOrders = this._workOrdersService.workOrders();
 		const completedOrders = workOrders.filter(
@@ -105,7 +100,7 @@ export class IndicatorsService {
 
 		const totalDays = completedOrders.reduce((sum, wo) => {
 			const entrada = new Date(wo.fechaIngreso);
-			const salida = new Date(wo.fechaProgramada); // Using fechaProgramada as proxy for delivery
+			const salida = new Date(wo.fechaProgramada); 
 			const days = Math.ceil((salida.getTime() - entrada.getTime()) / (1000 * 60 * 60 * 24));
 			return sum + (days > 0 ? days : 0);
 		}, 0);
@@ -131,7 +126,6 @@ export class IndicatorsService {
 		return Math.round((techniciansWithOrders.length / totalTechnicians) * 100);
 	});
 
-	// Quality KPIs
 	public readonly tasaRegresosPorGarantia = computed(() => {
 		const workOrders = this._workOrdersService.workOrders();
 		const totalEntregadas = workOrders.filter(
@@ -278,14 +272,12 @@ export class IndicatorsService {
 	});
 
 	constructor() {
-		// No need for effect - client metadata is now purely derived
 	}
 
 	private getTrendencia(current: number, previous: number, isInverse = false): 'up' | 'down' | 'stable' {
 		const diff = current - previous;
 		if (Math.abs(diff) < 0.1) return 'stable';
 
-		// For metrics where lower is better (like time or warranty returns), invert the logic
 		if (isInverse) {
 			return diff > 0 ? 'down' : 'up';
 		}

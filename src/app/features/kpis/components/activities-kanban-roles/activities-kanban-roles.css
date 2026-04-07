@@ -131,7 +131,6 @@
 	height: auto;
 }
 
-/* Responsive adjustments */
 @media (min-width: 768px) {
 	.kanban-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));

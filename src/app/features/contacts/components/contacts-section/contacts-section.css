@@ -48,8 +48,7 @@
   max-width: 90vw !important;
   min-width: 90vw !important;
 }
-
-/* Global dialog overrides using ::ng-deep */
+ 
 :host ::ng-deep {
   .contact-create-dialog-content {
     width: 90vw !important;
@@ -62,8 +61,7 @@
     max-width: 90vw !important;
     min-width: 90vw !important;
   }
-
-  /* Target dialog wrapper if available */
+ 
   .brn-dialog-content.contact-create-dialog-content,
   .brn-dialog-content.contact-detail-dialog-content {
     width: 90vw !important;
@@ -134,8 +132,7 @@
 .card-actions button {
   flex: 1;
 }
-
-/* Table responsive */
+ 
 @media (max-width: 768px) {
   .contacts-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

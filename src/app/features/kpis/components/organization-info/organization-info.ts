@@ -17,7 +17,6 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 			@if (orgInfo(); as org) {
 				<div class="grid gap-6">
-					<!-- Misión -->
 					<div hlmCard>
 						<div class="flex flex-col gap-4 p-6">
 							<div class="flex items-center justify-between">
@@ -40,7 +39,6 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 						</div>
 					</div>
 
-					<!-- Visión -->
 					<div hlmCard>
 						<div class="flex flex-col gap-4 p-6">
 							<div class="flex items-center justify-between">
@@ -63,7 +61,6 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 						</div>
 					</div>
 
-					<!-- Valores -->
 					<div hlmCard>
 						<div class="flex flex-col gap-4 p-6">
 							<div class="flex items-center justify-between">

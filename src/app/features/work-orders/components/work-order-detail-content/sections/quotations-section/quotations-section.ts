@@ -36,7 +36,6 @@ export class WorkOrderQuotationsSectionComponent {
 	protected readonly partSearch = signal('');
 	protected readonly serviceSearch = signal('');
 
-	// Inventory items grouped by type
 	protected readonly inventoryByType = computed(() => {
 		const search = this.partSearch().toLowerCase();
 		const allItems = this._inventoryService.items();
@@ -51,7 +50,6 @@ export class WorkOrderQuotationsSectionComponent {
 		return Object.entries(groups).filter(([_, items]) => items.length > 0);
 	});
 
-	// Services from prices list grouped by categoriaPrincipal
 	protected readonly servicesByCategory = computed(() => {
 		const search = this.serviceSearch().toLowerCase();
 		const vehicleType = this.order()?.tipoVehiculo;
@@ -193,10 +191,8 @@ export class WorkOrderQuotationsSectionComponent {
 			return isNaN(num) ? 0 : num;
 		};
 		
-		// Get the correct price based on vehicle type
 		let precio = 0;
 		if ('concepto' in service) {
-			// Automotive service
 			switch (order.tipoVehiculo) {
 				case 'Camioneta':
 					precio = safeParse((service as any).precioCamioneta);
@@ -209,11 +205,9 @@ export class WorkOrderQuotationsSectionComponent {
 					precio = safeParse((service as any).precioAuto);
 			}
 		} else {
-			// Lathe service - same price for all
 			precio = safeParse((service as any).precio);
 		}
 		
-		// Create a ServiceCatalogItem from Servicio
 		const serviceCatalog: ServiceCatalogItem = {
 			id: service.id.toString(),
 			nombre: 'concepto' in service ? (service as any).concepto : (service as any).tamano,

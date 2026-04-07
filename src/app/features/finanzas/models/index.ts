@@ -1,1 +1,1 @@
-export * from './finanzas.models';
+export * from './finances.models';

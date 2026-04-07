@@ -8,7 +8,7 @@ import {
 	lucideTrendingUp,
 	lucideTrendingDown,
 } from '@ng-icons/lucide';
-import { FinancesService } from '../../services/finanzas.service';
+import { FinancesService } from '../../services/finances.service';
 
 @Component({
 	selector: 'app-charts-comparative',
@@ -31,7 +31,6 @@ import { FinancesService } from '../../services/finanzas.service';
 				</div>
 			</div>
 
-			<!-- Monthly Comparison Grid -->
 			<div class="section">
 				<h3>Comparación Mensual</h3>
 				<div hlmCard>
@@ -80,7 +79,6 @@ import { FinancesService } from '../../services/finanzas.service';
 				</div>
 			</div>
 
-			<!-- Services Popularity -->
 			<div class="section">
 				<h3>Servicios Más Solicitados</h3>
 				<div class="services-grid">
@@ -123,7 +121,6 @@ import { FinancesService } from '../../services/finanzas.service';
 				</div>
 			</div>
 
-			<!-- KPI Highlights -->
 			<div class="section">
 				<h3>Aspectos Destacados</h3>
 				<div class="highlights-grid">
@@ -180,7 +177,6 @@ import { FinancesService } from '../../services/finanzas.service';
 				</div>
 			</div>
 
-			<!-- Monthly Breakdown Chart (Simple Bar Representation) -->
 			<div class="section">
 				<h3>Distribución de Ingresos vs Egresos</h3>
 				<div class="chart-container">

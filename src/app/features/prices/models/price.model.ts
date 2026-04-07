@@ -1,4 +1,3 @@
-// Servicios Automotrices Estándar (Afinación y Otros, Mecánica Rápida, Mecánica General)
 export interface ServicioAutomotriz {
   id: number;
   categoriaPrincipal: 'Afinación y Otros' | 'Mecánica Rápida' | 'Mecánica General';
@@ -11,7 +10,6 @@ export interface ServicioAutomotriz {
   observacion: string;
 }
 
-// Servicios de Torno
 export interface ServicioTorno {
   id: number;
   categoriaPrincipal: 'Servicio de Torno';
@@ -20,7 +18,6 @@ export interface ServicioTorno {
   precio: string;
 }
 
-// Tipo union
 export type Servicio = ServicioAutomotriz | ServicioTorno;
 
 export interface PriceFilter {

@@ -7,7 +7,7 @@ import type {
 	ServicePopularity,
 	TechnicianKPIData,
 	MonthComparative,
-} from '../models/finanzas.models';
+} from '../models/finances.models';
 import {
 	dailyCashEntriesMock,
 	accountsReceivableMock,
@@ -16,7 +16,7 @@ import {
 	technicianKPIMock,
 	monthComparativeMock,
 	generateDailyCashSummary,
-} from '../mocks/finanzas.mock';
+} from '../mocks/finances.mock';
 
 @Injectable({ providedIn: 'root' })
 export class FinancesService {
@@ -39,7 +39,6 @@ export class FinancesService {
 		structuredClone(monthComparativeMock)
 	);
 
-	// Public readonly signals
 	public readonly dailyCashEntries = this._dailyCashEntries.asReadonly();
 	public readonly accountsReceivable = this._accountsReceivable.asReadonly();
 	public readonly accountsPayable = this._accountsPayable.asReadonly();
@@ -47,7 +46,6 @@ export class FinancesService {
 	public readonly technicianKPIs = this._technicianKPIs.asReadonly();
 	public readonly monthComparatives = this._monthComparatives.asReadonly();
 
-	// Computed properties for daily cash summary
 	public readonly dailyCashSummary = computed(() => {
 		const entries = this._dailyCashEntries();
 		const today = new Date().toISOString().split('T')[0];
@@ -83,7 +81,6 @@ export class FinancesService {
 		};
 	});
 
-	// Computed properties for accounts summaries
 	public readonly receivableSummary = computed(() => {
 		const accounts = this._accountsReceivable();
 		return {
@@ -106,7 +103,6 @@ export class FinancesService {
 		};
 	});
 
-	// KPI computed properties
 	public readonly totalIncome = computed(() => {
 		return this._monthComparatives().reduce((sum, m) => sum + m.ingresos, 0);
 	});
@@ -121,7 +117,6 @@ export class FinancesService {
 		return income - expenses;
 	});
 
-	// Methods for daily cash
 	public addDailyCashEntry(entry: Omit<DailyCashEntry, 'id'>): void {
 		const newEntry: DailyCashEntry = {
 			...entry,
@@ -142,7 +137,6 @@ export class FinancesService {
 		);
 	}
 
-	// Methods for accounts receivable
 	public addAccountReceivable(account: Omit<AccountReceivable, 'id'>): void {
 		const newAccount: AccountReceivable = {
 			...account,
@@ -163,7 +157,6 @@ export class FinancesService {
 		);
 	}
 
-	// Methods for accounts payable
 	public addAccountPayable(account: Omit<AccountPayable, 'id'>): void {
 		const newAccount: AccountPayable = {
 			...account,
@@ -184,7 +177,6 @@ export class FinancesService {
 		);
 	}
 
-	// Methods to get by ID
 	public getDailyCashEntry(id: string): DailyCashEntry | undefined {
 		return this._dailyCashEntries().find((e) => e.id === id);
 	}
@@ -197,7 +189,6 @@ export class FinancesService {
 		return this._accountsPayable().find((a) => a.id === id);
 	}
 
-	// Filter methods
 	public getReceivablesByStatus(status: string): AccountReceivable[] {
 		return this._accountsReceivable().filter((a) => a.estado === status);
 	}
@@ -214,7 +205,6 @@ export class FinancesService {
 		return this._accountsPayable().filter((a) => a.estado === 'Vencido');
 	}
 
-	// Statistics helpers
 	public getMonthlyComparative(): MonthComparative[] {
 		return this._monthComparatives();
 	}

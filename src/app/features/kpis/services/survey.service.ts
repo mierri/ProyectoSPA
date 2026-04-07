@@ -48,7 +48,6 @@ export class SurveyService {
 				10
 		) / 10;
 
-		// Get the latest survey date
 		const ultimaEncuesta = 
 			responses.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0]?.fecha || 'N/A';
 
@@ -65,7 +64,6 @@ export class SurveyService {
 	});
 
 	constructor() {
-		// Auto-save to localStorage when surveys change
 		effect(() => {
 			this.saveToStorage(this._surveys());
 		});

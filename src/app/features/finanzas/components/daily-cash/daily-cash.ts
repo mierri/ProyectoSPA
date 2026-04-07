@@ -12,8 +12,8 @@ import {
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { FinanzasDataService } from '../../services/finanzas-data.service';
-import type { DailyCashEntry, PaymentMethod, CashTransactionType } from '../../models/finanzas.models';
+import { FinancesDataService } from '../../services/finances-data.service';
+import type { DailyCashEntry, PaymentMethod, CashTransactionType } from '../../models/finances.models';
 import { HlmInput } from "@spartan-ng/helm/input";
 
 @Component({
@@ -38,7 +38,6 @@ import { HlmInput } from "@spartan-ng/helm/input";
 	],
 	template: `
 		<div class="space-y-6">
-			<!-- Header -->
 			<div class="flex justify-between items-start">
 				<div>
 					<h2 class="text-2xl font-bold">Caja Diaria</h2>
@@ -54,7 +53,6 @@ import { HlmInput } from "@spartan-ng/helm/input";
 				</button>
 			</div>
 
-			<!-- Summary Cards -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div hlmCard class="p-4">
 					<div class="text-sm mb-2">Ingresos</div>
@@ -76,7 +74,6 @@ import { HlmInput } from "@spartan-ng/helm/input";
 				</div>
 			</div>
 
-			<!-- Form -->
 			<div *ngIf="showForm()" hlmCard class="p-6">
 				<h3 class="font-semibold mb-4">Nuevo Movimiento</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -126,7 +123,6 @@ import { HlmInput } from "@spartan-ng/helm/input";
 				</div>
 			</div>
 
-			<!-- Métodos de Pago -->
 			<div>
 				<h3 class="font-semibold mb-3">Desglose por Método de Pago</h3>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -145,7 +141,6 @@ import { HlmInput } from "@spartan-ng/helm/input";
 				</div>
 			</div>
 
-			<!-- Transactions Table -->
 			<div>
 				<h3 class="font-semibold mb-3">Movimientos Recientes</h3>
 				<div hlmCard>
@@ -191,7 +186,7 @@ import { HlmInput } from "@spartan-ng/helm/input";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyCashComponent {
-	private readonly dataService = inject(FinanzasDataService);
+	private readonly dataService = inject(FinancesDataService);
 	private readonly cdr = inject(ChangeDetectorRef);
 
 	readonly showForm = signal(false);

@@ -34,9 +34,9 @@ export interface KPI {
 	nombre: string;
 	descripcion: string;
 	roleResponsable: RoleType;
-	meta: number; // Meta en porcentaje (0-100)
-	progreso: number; // Progreso actual en porcentaje (0-100)
-	periodo: string; // e.g., "Q1 2026", "Enero 2026"
+	meta: number; 
+	progreso: number; 
+	periodo: string; 
 	fechaInicio: string;
 	fechaFin: string;
 	activo: boolean;
@@ -45,7 +45,7 @@ export interface KPI {
 export interface ActivityTag {
 	id: string;
 	nombre: string;
-	color: string; // Hex color
+	color: string; 
 }
 
 export interface Activity {
@@ -54,8 +54,8 @@ export interface Activity {
 	descripcion: string;
 	roleAsignado: RoleType;
 	status: ActivityStatus;
-	tags: string[]; // Array de tag IDs
-	empleadoAsignado?: string; // Employee ID
+	tags: string[]; 
+	empleadoAsignado?: string;
 	fechaCreacion: string;
 	fechaVencimiento?: string;
 	prioridad: 'Baja' | 'Normal' | 'Alta';

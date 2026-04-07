@@ -4,17 +4,12 @@ import type {
 	AccountReceivable,
 	AccountPayable,
 	DailyCashSummary,
-} from '../models/finanzas.models';
+} from '../models/finances.models';
 
-/**
- * Service that integrates real data from work-orders, payments systems
- * to generate financial reports. This is the source of truth for real data.
- */
 @Injectable({
 	providedIn: 'root',
 })
-export class FinanzasDataService {
-	// Real data generated from completed work orders
+export class FinancesDataService {
 	private _workOrdersData = signal<any[]>([
 		{
 			id: 'WO-1042',
@@ -68,7 +63,6 @@ export class FinanzasDataService {
 		},
 	]);
 
-	// Expenses from materials and operations
 	private _expensesData = signal<any[]>([
 		{
 			id: 'EXP-001',
@@ -112,7 +106,6 @@ export class FinanzasDataService {
 		},
 	]);
 
-	// Accounts receivable from completed work orders
 	private _accountsReceivableData = signal<any[]>([
 		{
 			id: 'AR-1',
@@ -171,7 +164,6 @@ export class FinanzasDataService {
 		},
 	]);
 
-	// Accounts payable to suppliers
 	private _accountsPayableData = signal<any[]>([
 		{
 			id: 'AP-1',
@@ -229,7 +221,6 @@ export class FinanzasDataService {
 		},
 	]);
 
-	// Daily cash records
 	private _dailyCashData = signal<DailyCashEntry[]>([
 		{
 			id: 'cash-001',
@@ -290,7 +281,6 @@ export class FinanzasDataService {
 
 	constructor() {}
 
-	// Public accessors
 	getCompletedWorkOrders() {
 		return this._workOrdersData();
 	}
@@ -311,19 +301,16 @@ export class FinanzasDataService {
 		return this._dailyCashData();
 	}
 
-	// Add new entry
 	addDailyCashEntry(entry: DailyCashEntry) {
 		const current = this._dailyCashData();
 		this._dailyCashData.set([entry, ...current]);
 	}
 
-	// Remove entry
 	removeDailyCashEntry(id: string) {
 		const current = this._dailyCashData();
 		this._dailyCashData.set(current.filter((e) => e.id !== id));
 	}
 
-	// Update payment in AR
 	updateReceivablePayment(id: string, paymentAmount: number) {
 		const current = this._accountsReceivableData();
 		const updated = current.map((ar) => {
@@ -348,7 +335,6 @@ export class FinanzasDataService {
 		this._accountsReceivableData.set(updated);
 	}
 
-	// Update payment in AP
 	updatePayablePayment(id: string, paymentAmount: number) {
 		const current = this._accountsPayableData();
 		const updated = current.map((ap) => {

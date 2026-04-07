@@ -28,16 +28,13 @@ export class PricesService {
     this.servicios.set(this.servicios().filter(s => s.id !== id));
   }
 
-  // Filtrado y búsqueda
   filterServicios(filter: PriceFilter): { items: Servicio[]; total: number } {
     let filtered = [...this.servicios()];
 
-    // Filtrar por categoría
     if (filter.categoriaPrincipal && filter.categoriaPrincipal !== 'Todas') {
       filtered = filtered.filter(s => s.categoriaPrincipal === filter.categoriaPrincipal);
     }
 
-    // Filtrar por sistema (solo para servicios automotrices)
     if (filter.sistema) {
       filtered = filtered.filter(s => {
         if ('sistema' in s) {
@@ -47,7 +44,6 @@ export class PricesService {
       });
     }
 
-    // Filtrar por familia (solo para servicios automotrices)
     if (filter.familia) {
       filtered = filtered.filter(s => {
         if ('familia' in s) {
@@ -57,7 +53,6 @@ export class PricesService {
       });
     }
 
-    // Búsqueda de texto
     if (filter.searchText) {
       const query = filter.searchText.toLowerCase().trim();
       filtered = filtered.filter(s => {
