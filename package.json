@@ -36,6 +36,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "embla-carousel-angular": "^20.0.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "pdfmake": "^0.3.7",
     "rxjs": "~7.8.0",
     "tailwind-merge": "^3.5.0",

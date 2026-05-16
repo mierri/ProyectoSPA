@@ -9,9 +9,9 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideTrash2, lucidePlus, lucideDownload } from '@ng-icons/lucide';
-import { NotificationService } from '../../../../core';
+import { NotificationService, PdfMakerService } from '../../../../core';
 import { PricesService } from '../../services/prices.service';
-import { Servicio, QuoteLineItem } from '../../models/price.model';
+import { ServicioAutomotriz, ServicioTorno, QuoteLineItem } from '../../models/price.model';
 
 @Component({
   selector: 'spartan-price-quoter',
@@ -35,12 +35,23 @@ import { Servicio, QuoteLineItem } from '../../models/price.model';
 export class PriceQuoterComponent {
   private readonly service = inject(PricesService);
   private readonly notification = inject(NotificationService);
+  private readonly pdfMaker = inject(PdfMakerService);
 
   public readonly servicios = computed(() => this.service.getServicios());
 
   protected readonly selectedService = signal<number>(0);
   protected readonly selectedQuantity = signal<number>(1);
   protected readonly quoteItems = signal<QuoteLineItem[]>([]);
+
+  protected readonly selectedServiceLabel = computed(() => {
+    const id = this.selectedService();
+    if (!id) return '';
+    const s = this.servicios().find(sv => sv.id === id);
+    if (!s) return '';
+    return 'concepto' in s
+      ? (s as ServicioAutomotriz).concepto
+      : (s as ServicioTorno).tamano;
+  });
 
   protected readonly subtotal = computed(() => {
     return this.quoteItems().reduce((sum, item) => sum + item.subtotal, 0);
@@ -98,16 +109,75 @@ export class PriceQuoterComponent {
   }
 
   protected generatePDF(): void {
-    const doc = this.generateQuoteDocument();
-    const blob = new Blob([doc], { type: 'text/html' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `cotizacion-${Date.now()}.html`;
-    link.click();
-    window.URL.revokeObjectURL(url);
+    const items = this.quoteItems();
+    if (items.length === 0) return;
 
-    this.notification.success('Cotización descargada');
+    try {
+      const date = new Date().toLocaleDateString('es-MX');
+      const fmt = (n: number) => `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const subtotal  = this.subtotal();
+      const taxAmount = this.taxAmount();
+      const total     = this.total();
+
+      const doc = this.pdfMaker.create();
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 40;
+
+      doc.setFontSize(22).setFont('helvetica', 'bold');
+      doc.text('COTIZACIÓN', margin, 60);
+
+      doc.setFontSize(11).setFont('helvetica', 'normal').setTextColor(100);
+      doc.text(`Fecha: ${date}`, margin, 80);
+
+      doc.setDrawColor(220).line(margin, 92, pageW - margin, 92);
+
+      this.pdfMaker.addTable(doc, {
+        startY: 102,
+        margin: { left: margin, right: margin },
+        head: [['Descripción', 'Cantidad', 'Precio Unitario', 'Subtotal']],
+        body: items.map(item => [
+          item.nombre,
+          String(item.cantidad),
+          fmt(item.precioUnitario),
+          fmt(item.subtotal),
+        ]),
+        headStyles:   { fillColor: [245, 245, 245], textColor: 50, fontStyle: 'bold', fontSize: 10 },
+        bodyStyles:   { fontSize: 10 },
+        columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+        theme: 'plain',
+        tableLineColor: [220, 220, 220],
+        tableLineWidth: 0.5,
+      });
+
+      const afterTable = (doc as any).lastAutoTable.finalY + 14;
+      doc.setDrawColor(220).line(margin, afterTable, pageW - margin, afterTable);
+
+      const col2x = pageW - margin - 180;
+      let y = afterTable + 18;
+
+      doc.setFontSize(10).setFont('helvetica', 'normal').setTextColor(50);
+      doc.text('Subtotal:', col2x, y);
+      doc.text(fmt(subtotal), pageW - margin, y, { align: 'right' });
+
+      y += 18;
+      doc.setTextColor(22, 163, 74);
+      doc.text('Impuesto (20%):', col2x, y);
+      doc.text(fmt(taxAmount), pageW - margin, y, { align: 'right' });
+
+      y += 10;
+      doc.setDrawColor(50).line(col2x, y, pageW - margin, y);
+      y += 14;
+
+      doc.setFontSize(13).setFont('helvetica', 'bold').setTextColor(17);
+      doc.text('TOTAL:', col2x, y);
+      doc.text(fmt(total), pageW - margin, y, { align: 'right' });
+
+      doc.save(`cotizacion-${Date.now()}.pdf`);
+      this.notification.success('Cotización descargada');
+    } catch (err) {
+      console.error('[PDF] Error al generar PDF:', err);
+      this.notification.error('No se pudo generar el PDF.');
+    }
   }
 
   private parsePrice(priceStr: string): number {
@@ -116,74 +186,6 @@ export class PriceQuoterComponent {
 
   private roundPrice(price: number): number {
     return Math.round(price * 100) / 100;
-  }
-
-  private generateQuoteDocument(): string {
-    const date = new Date().toLocaleDateString('es-MX');
-    const items = this.quoteItems()
-      .map(
-        item => `
-      <tr>
-        <td>${item.nombre}</td>
-        <td>${item.cantidad}</td>
-        <td>$${item.precioUnitario.toFixed(2)}</td>
-        <td>$${item.subtotal.toFixed(2)}</td>
-      </tr>
-    `
-      )
-      .join('');
-
-    return `
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Cotización</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 2cm; }
-            table { width: 100%; border-collapse: collapse; margin: 1cm 0; }
-            th, td { border: 1px solid #ddd; padding: 0.5cm; text-align: left; }
-            th { background-color: #f5f5f5; }
-            .header { text-align: center; margin-bottom: 1cm; }
-            .total-section { width: 300px; margin-left: auto; margin-top: 1cm; }
-            .total-row { display: flex; justify-content: space-between; padding: 0.5cm; border-bottom: 1px solid #ddd; }
-            .total-value { font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Cotización</h1>
-            <p>Fecha: ${date}</p>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items}
-            </tbody>
-          </table>
-          <div class="total-section">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span class="total-value">$${this.subtotal().toFixed(2)}</span>
-            </div>
-            <div class="total-row">
-              <span>Impuesto (20%):</span>
-              <span class="total-value">$${this.taxAmount().toFixed(2)}</span>
-            </div>
-            <div class="total-row" style="border-bottom: 2px solid #000; font-size: 1.2em;">
-              <span>TOTAL:</span>
-              <span class="total-value">$${this.total().toFixed(2)}</span>
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
   }
 
   protected onQuantityChange(event: Event): void {

@@ -1,59 +1,114 @@
-# ProyectoColosio
+# ProyectoSPA — Sistema de Gestión para Taller Automotriz
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.3.
+Aplicación web SPA desarrollada en **Angular 21** para la administración integral de un taller automotriz. Incluye gestión de clientes, vehículos, órdenes de trabajo, inventario, finanzas, precios y más.
 
-## Development server
+---
 
-To start a local development server, run:
+## Tecnologías
 
-```bash
-ng serve
-```
+| Capa | Tecnología |
+|---|---|
+| Framework | Angular 21 (standalone components) |
+| Estilos | Tailwind CSS v4 |
+| Componentes UI | Spartan NG (Helm + Brain) |
+| Iconos | ng-icons / Lucide |
+| Exportación PDF | jsPDF + jsPDF-AutoTable |
+| Exportación Excel | SheetJS (xlsx) |
+| Backend | Laravel (carpeta `ProyectoSPABackend`) |
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Módulos
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+| Ruta | Módulo | Roles |
+|---|---|---|
+| `/app/dashboard` | Dashboard con tarjetas de acceso rápido | Todos |
+| `/app/clientes-vehiculos` | Clientes y vehículos, detalle por cliente | Todos |
+| `/app/ordenes-trabajo` | Órdenes de trabajo, detalle y exportación PDF/Excel | Todos |
+| `/app/inventario` | Gestión de inventario y refacciones | admin, técnico |
+| `/app/lista-precios` | Catálogo de precios y cotizador con descarga PDF | admin |
+| `/app/finanzas-reportes` | Caja diaria, cuentas por cobrar/pagar, reportes PDF | admin, gerente |
+| `/app/agenda-pagos` | Agenda de pagos pendientes | admin, gerente |
+| `/app/contactos-proveedores` | Directorio de proveedores y contactos | admin, gerente |
+| `/app/lista-actividades` | Registro de actividades del taller | Todos |
+| `/app/kpis` | Dashboard de indicadores de rendimiento | admin, gerente |
+| `/app/settings` | Configuración de cuenta y sistema | Todos |
+| `/portal/:token` | Portal de cliente (acceso externo sin login) | Público |
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Instalación y desarrollo
 
-```bash
-ng generate --help
-```
+### Requisitos
+- Node.js 20+
+- npm 11+
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### Pasos
 
 ```bash
-ng e2e
+# Instalar dependencias
+npm install
+
+# Servidor de desarrollo
+npm start
+# → http://localhost:4200
+
+# Build de producción
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Backend (Laravel)
 
-## Additional Resources
+```bash
+cd ProyectoSPABackend
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+# Instalar dependencias PHP
+composer install
+
+# Configurar entorno
+cp .env.example .env
+php artisan key:generate
+
+# Migraciones
+php artisan migrate
+
+# Servidor
+php artisan serve
+# → http://localhost:8000
+```
+
+El frontend usa un proxy configurado en `proxy.conf.json` que redirige las llamadas `/api/*` al backend Laravel.
+
+---
+
+## Estructura del proyecto
+
+```
+src/
+├── app/
+│   ├── core/              # Servicios globales (auth, PDF, notificaciones)
+│   ├── features/          # Módulos por funcionalidad
+│   │   ├── dashboard/
+│   │   ├── clients-vehicles/
+│   │   ├── work-orders/
+│   │   ├── inventory/
+│   │   ├── prices/
+│   │   ├── finanzas/
+│   │   ├── payments-agenda/
+│   │   ├── contacts/
+│   │   ├── activities/
+│   │   ├── kpis/
+│   │   ├── settings/
+│   │   └── portal/
+│   ├── layouts/           # Main layout y Auth layout
+│   └── components/ui/     # Componentes Spartan/Helm reutilizables
+└── styles.css
+```
+
+---
+
+## Roles de usuario
+
+- **admin** — acceso completo
+- **gerente** — finanzas, KPIs, agenda, contactos
+- **tecnico** — órdenes de trabajo e inventario

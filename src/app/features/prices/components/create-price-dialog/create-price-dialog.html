@@ -35,52 +35,39 @@
       <div class="form-grid-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div class="form-group">
           <label hlmLabel for="sistema">Sistema *</label>
-          <hlm-select [value]="sistema()" (valueChange)="setSistema($event || '')">
-            <hlm-select-trigger id="sistema">
-              <hlm-select-value placeholder="Selecciona un sistema" />
-            </hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              <hlm-select-group>
-                @for (s of sistemaOptions(); track s) {
-                  <hlm-select-item [value]="s">{{ s }}</hlm-select-item>
-                }
-              </hlm-select-group>
-            </hlm-select-content>
-          </hlm-select>
+          <input
+            hlmInput
+            id="sistema"
+            type="text"
+            list="sistema-options"
+            [value]="sistema()"
+            (input)="setSistema($any($event.target).value)"
+            placeholder="Ej: Eléctrico, Frenos..."
+          />
+          <datalist id="sistema-options">
+            @for (s of sistemaOptions(); track s) {
+              <option [value]="s"></option>
+            }
+          </datalist>
         </div>
 
-        @if (familiaOptions().length > 0) {
-          <div class="form-group">
-            <label hlmLabel for="familia">Familia</label>
-            <hlm-select [value]="familia()" (valueChange)="familia.set($event || '')">
-              <hlm-select-trigger id="familia">
-                <hlm-select-value placeholder="Selecciona una familia" />
-              </hlm-select-trigger>
-              <hlm-select-content *hlmSelectPortal>
-                <hlm-select-group>
-                  <hlm-select-item value="">Sin familia</hlm-select-item>
-                  @for (f of familiaOptions(); track f) {
-                    <hlm-select-item [value]="f">{{ f }}</hlm-select-item>
-                  }
-                </hlm-select-group>
-              </hlm-select-content>
-            </hlm-select>
-          </div>
-        } @else {
-          <div class="form-group">
-            <label hlmLabel for="familia">Familia</label>
-            <hlm-select [value]="familia()" (valueChange)="familia.set($event || '')">
-              <hlm-select-trigger id="familia">
-                <hlm-select-value placeholder="Selecciona una familia" />
-              </hlm-select-trigger>
-              <hlm-select-content *hlmSelectPortal>
-                <hlm-select-group>
-                  <hlm-select-item value="">Sin familia</hlm-select-item>
-                </hlm-select-group>
-              </hlm-select-content>
-            </hlm-select>
-          </div>
-        }
+        <div class="form-group">
+          <label hlmLabel for="familia">Familia</label>
+          <input
+            hlmInput
+            id="familia"
+            type="text"
+            list="familia-options"
+            [value]="familia()"
+            (input)="familia.set($any($event.target).value)"
+            placeholder="Ej: Bobinas (opcional)"
+          />
+          <datalist id="familia-options">
+            @for (f of familiaOptions(); track f) {
+              <option [value]="f"></option>
+            }
+          </datalist>
+        </div>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
@@ -89,10 +76,12 @@
           <input
             hlmInput
             id="precioAuto"
-            type="text"
+            type="number"
+            min="0"
+            step="1"
             [value]="precioAuto()"
-            (input)="precioAuto.set($any($event.target).value)"
-            placeholder="$450.00"
+            (input)="setNumeric(precioAuto, $event)"
+            placeholder="450"
           />
         </div>
 
@@ -101,10 +90,12 @@
           <input
             hlmInput
             id="precioCamioneta"
-            type="text"
+            type="number"
+            min="0"
+            step="1"
             [value]="precioCamioneta()"
-            (input)="precioCamioneta.set($any($event.target).value)"
-            placeholder="$550.00"
+            (input)="setNumeric(precioCamioneta, $event)"
+            placeholder="550"
           />
         </div>
 
@@ -113,10 +104,12 @@
           <input
             hlmInput
             id="precioCamion"
-            type="text"
+            type="number"
+            min="0"
+            step="1"
             [value]="precioCamion()"
-            (input)="precioCamion.set($any($event.target).value)"
-            placeholder="$750.00"
+            (input)="setNumeric(precioCamion, $event)"
+            placeholder="750"
           />
         </div>
       </div>
@@ -164,10 +157,12 @@
         <input
           hlmInput
           id="precio"
-          type="text"
+          type="number"
+          min="0"
+          step="1"
           [value]="precio()"
-          (input)="precio.set($any($event.target).value)"
-          placeholder="$180.00"
+          (input)="setNumeric(precio, $event)"
+          placeholder="180"
         />
       </div>
     }
