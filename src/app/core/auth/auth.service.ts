@@ -1,44 +1,61 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { tap } from 'rxjs';
 
-type TempCredentials = {
-	username: string;
-	password: string;
-};
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+  permissions: string[];
+}
+
+interface LoginResponse {
+  data: { token: string; user: AuthUser };
+}
 
 @Injectable({ providedIn: 'root' })
-export class TempAuthService {
-	private static readonly SESSION_KEY = 'temp-auth-session';
+export class AuthService {
+  private static readonly TOKEN_KEY = 'auth_token';
+  private static readonly USER_KEY  = 'auth_user';
 
-	private readonly _credentials: TempCredentials = {
-		username: this.generateToken('user'),
-		password: this.generateToken('pass'),
-	};
+  private readonly _http = inject(HttpClient);
 
-	private readonly _isAuthenticated = signal<boolean>(this.readSession());
+  private readonly _user = signal<AuthUser | null>(this.loadUser());
+  private readonly _isAuthenticated = signal<boolean>(!!this.loadToken());
 
-	public readonly credentials = this._credentials;
-	public readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  public readonly currentUser    = this._user.asReadonly();
+  public readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
-	public login(username: string, password: string): boolean {
-		const ok = username === this._credentials.username && password === this._credentials.password;
-		this._isAuthenticated.set(ok);
-		if (ok) {
-			sessionStorage.setItem(TempAuthService.SESSION_KEY, '1');
-		}
-		return ok;
-	}
+  public login(email: string, password: string) {
+    return this._http.post<LoginResponse>('/api/v1/auth/login', { email, password }).pipe(
+      tap(res => {
+        localStorage.setItem(AuthService.TOKEN_KEY, res.data.token);
+        localStorage.setItem(AuthService.USER_KEY, JSON.stringify(res.data.user));
+        this._user.set(res.data.user);
+        this._isAuthenticated.set(true);
+      })
+    );
+  }
 
-	public logout(): void {
-		this._isAuthenticated.set(false);
-		sessionStorage.removeItem(TempAuthService.SESSION_KEY);
-	}
+  public logout() {
+    this._http.post('/api/v1/auth/logout', {}).subscribe({ error: () => {} });
+    localStorage.removeItem(AuthService.TOKEN_KEY);
+    localStorage.removeItem(AuthService.USER_KEY);
+    this._user.set(null);
+    this._isAuthenticated.set(false);
+  }
 
-	private readSession(): boolean {
-		return sessionStorage.getItem(TempAuthService.SESSION_KEY) === '1';
-	}
+  public getToken(): string | null {
+    return localStorage.getItem(AuthService.TOKEN_KEY);
+  }
 
-	private generateToken(prefix: string): string {
-		const seed = Math.random().toString(36).slice(2, 8);
-		return `${prefix}-${seed}`;
-	}
+  private loadToken(): string | null {
+    return localStorage.getItem(AuthService.TOKEN_KEY);
+  }
+
+  private loadUser(): AuthUser | null {
+    const raw = localStorage.getItem(AuthService.USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }
 }

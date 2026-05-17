@@ -72,6 +72,7 @@ export class NavMain {
 				url: string;
 				icon: string;
 				exact?: boolean;
+				permission?: string;
 			}[];
 		}[]
 	>();

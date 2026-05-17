@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -159,7 +159,7 @@ import type { AccountReceivable, ReceivableStatus } from '../../models/finances.
 export class AccountsReceivableComponent {
 	private readonly dataService = inject(FinancesDataService);
 
-	readonly accounts = signal<AccountReceivable[]>([]);
+	readonly accounts = this.dataService.accountsReceivable;
 
 	readonly summary = computed(() => {
 		const data = this.accounts();
@@ -186,11 +186,6 @@ export class AccountsReceivableComponent {
 			promedio: total / data.length || 0,
 		};
 	});
-
-	constructor() {
-		const realData = this.dataService.getAccountsReceivable();
-		this.accounts.set(realData);
-	}
 
 	getStatusClass(status: ReceivableStatus): string {
 		const classes: Record<ReceivableStatus, string> = {

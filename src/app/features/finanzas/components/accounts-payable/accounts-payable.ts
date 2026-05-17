@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -159,7 +159,7 @@ import type { AccountPayable, PayableStatus } from '../../models/finances.models
 export class AccountsPayableComponent {
 	private readonly dataService = inject(FinancesDataService);
 
-	readonly payables = signal<AccountPayable[]>([]);
+	readonly payables = this.dataService.accountsPayable;
 
 	readonly summary = computed(() => {
 		const data = this.payables();
@@ -186,11 +186,6 @@ export class AccountsPayableComponent {
 			promedio: total / data.length || 0,
 		};
 	});
-
-	constructor() {
-		const realData = this.dataService.getAccountsPayable();
-		this.payables.set(realData);
-	}
 
 	getStatusClass(status: PayableStatus): string {
 		const statusColors: Record<PayableStatus, { bg: string; text: string }> = {

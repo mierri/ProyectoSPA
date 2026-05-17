@@ -1,574 +1,425 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { map, type Observable } from 'rxjs';
 import { InventoryService } from '../../inventory/services';
-import { workOrdersMock } from '../mocks/work-orders.mock';
 import type {
-	AssignedPartItem,
-	AssignedServiceItem,
-	ChecklistItem,
-	ClientData,
-	CreateWorkOrderInput,
-	PartCatalogItem,
-	VehicleData,
-	WorkOrder,
-	WorkOrderNote,
-	WorkOrderPriority,
-	WorkOrderStatus,
+  AssignedPartItem, AssignedServiceItem, ChecklistItem, ClientData,
+  CreateWorkOrderInput, PartCatalogItem, VehicleData, WorkOrder,
+  WorkOrderNote, WorkOrderPriority, WorkOrderStatus,
 } from '../models/work-orders.models';
+
+interface WoListApi {
+  id: string; status: string; priority: string; tipo_vehiculo: string;
+  problema: string; fecha_ingreso: string; fecha_programada: string;
+  cargo_generado: boolean;
+  cliente: { id: number; nombre: string; telefono: string; correo: string } | null;
+  vehiculo: { id: number; marca: string; modelo: string; anio: number; placas: string; vin: string } | null;
+  tecnico: { id: number; name: string } | null;
+}
+
+interface WoDetailApi extends WoListApi {
+  diagnostico: string;
+  checklists: { id: number; tipo: string; tarea: string; responsable: string; completada: boolean }[];
+  fotos: { id: number; url: string }[];
+  notas: { id: number; tipo: string; texto: string; created_at: string; user?: { name: string } }[];
+  partes: { id: number; inventory_item_id: number; nombre: string; cantidad: number; costo_unitario: number }[];
+  servicios: { id: number; price_item_id: number; nombre: string; precio: number }[];
+  timeline: { id: number; descripcion: string; created_at: string; user?: { name: string } }[];
+}
+
+interface Paginated<T> { data: T[] }
 
 @Injectable({ providedIn: 'root' })
 export class WorkOrdersService {
-	private readonly _inventoryService = inject(InventoryService);
-	private readonly _workOrders = signal<WorkOrder[]>(structuredClone(workOrdersMock));
-	private readonly _manualClients = signal<string[]>([]);
+  private readonly _inventoryService = inject(InventoryService);
+  private readonly _http = inject(HttpClient);
+  private readonly _workOrders = signal<WorkOrder[]>([]);
+  private readonly _listLoaded = signal(false);
 
-	public readonly workOrders = this._workOrders.asReadonly();
-	public readonly technicians = computed(() => [...new Set(this._workOrders().map((order) => order.tecnico))]);
-	public readonly clients = computed(() => [...new Set(this._workOrders().map((order) => order.cliente))]);
-	public readonly allClients = computed(() => {
-		const ordered = [...this._manualClients(), ...this.clients()];
-		return [...new Set(ordered)].sort((a, b) => a.localeCompare(b));
-	});
+  public readonly workOrders = this._workOrders.asReadonly();
+  public readonly listLoaded = this._listLoaded.asReadonly();
+  public readonly technicians = computed(() => [...new Set(this._workOrders().map(o => o.tecnico))]);
+  public readonly clients = computed(() => [...new Set(this._workOrders().map(o => o.cliente))]);
+  public readonly allClients = computed(() => [...new Set(this.clients())].sort((a, b) => a.localeCompare(b)));
 
-	public getById(id: string): WorkOrder | undefined {
-		return this._workOrders().find((order) => order.id === id);
-	}
+  constructor() { this.loadAll(); }
 
-	public createWorkOrder(input?: CreateWorkOrderInput): WorkOrder {
-		const nextId = this.buildNextOrderId();
-		const nowDate = this.todayDate();
-		const defaultInput: CreateWorkOrderInput = {
-			cliente: 'Nuevo cliente',
-			telefono: '',
-			correo: '',
-			tecnico: 'Sin asignar',
-			fechaProgramada: nowDate,
-			priority: 'Media',
-			vehicle: {
-				marca: 'Pendiente',
-				modelo: 'Pendiente',
-				anio: 2026,
-				placas: 'PEND-000',
-				vin: 'PENDIENTE',
-				kilometraje: 0,
-			},
-			tipoVehiculo: 'Auto',
-			problema: 'Pendiente de captura',
-			diagnostico: 'Pendiente de diagnostico tecnico',
-		};
+  private loadAll(): void {
+    this._http.get<Paginated<WoListApi>>('/api/v1/work-orders?per_page=100').subscribe({
+      next: (res) => {
+        this._workOrders.set(res.data.map(item => this.mapList(item)));
+        this._listLoaded.set(true);
+      },
+      error: () => this._listLoaded.set(true),
+    });
+  }
 
-		const payload = { ...defaultInput, ...input };
-		const newOrder: WorkOrder = {
-			id: nextId,
-			cliente: payload.cliente,
-			tecnico: payload.tecnico,
-			fechaIngreso: nowDate,
-			fechaProgramada: payload.fechaProgramada || nowDate,
-			status: 'Agendado',
-			priority: payload.priority,
-			vehicle: { ...payload.vehicle },
-			tipoVehiculo: payload.tipoVehiculo,
-			problema: payload.problema,
-			diagnostico: payload.diagnostico,
-			fotosIngreso: [],
-			checklistInicial: [],
-			checklistTrabajo: [],
-			timeline: [this.createTimeline('OT creada', 'Recepcion')],
-			catalogoRefacciones: [],
-			refaccionesAsignadas: [],
-			catalogoServicios: [],
-			serviciosAsignados: [],
-			cargoCuentasPorCobrarGenerado: false,
-			notasInternas: [],
-			notasCliente: [],
-			clientData: {
-				nombre: payload.cliente,
-				telefono: payload.telefono,
-				correo: payload.correo,
-			},
-		};
+  private toDate(iso: string | null): string {
+    if (!iso) return new Date().toISOString().split('T')[0];
+    return iso.includes('T') ? iso.split('T')[0] : iso;
+  }
 
-		this._workOrders.update((orders) => [newOrder, ...orders]);
-		return newOrder;
-	}
+  private mapList(item: WoListApi): WorkOrder {
+    return {
+      id: item.id,
+      cliente: item.cliente?.nombre ?? 'Sin cliente',
+      tecnico: item.tecnico?.name ?? 'Sin asignar',
+      fechaIngreso: this.toDate(item.fecha_ingreso),
+      fechaProgramada: this.toDate(item.fecha_programada),
+      status: item.status as WorkOrderStatus,
+      priority: item.priority as WorkOrderPriority,
+      tipoVehiculo: (item.tipo_vehiculo === 'Camion' ? 'Camión' : (item.tipo_vehiculo ?? 'Auto')) as WorkOrder['tipoVehiculo'],
+      problema: item.problema ?? '',
+      diagnostico: '',
+      vehicle: {
+        marca: item.vehiculo?.marca ?? '',
+        modelo: item.vehiculo?.modelo ?? '',
+        anio: Number(item.vehiculo?.anio ?? 0),
+        placas: item.vehiculo?.placas ?? '',
+        vin: item.vehiculo?.vin ?? '',
+        kilometraje: 0,
+      },
+      fotosIngreso: [],
+      checklistInicial: [],
+      checklistTrabajo: [],
+      timeline: [],
+      catalogoRefacciones: [],
+      refaccionesAsignadas: [],
+      catalogoServicios: [],
+      serviciosAsignados: [],
+      cargoCuentasPorCobrarGenerado: item.cargo_generado ?? false,
+      notasInternas: [],
+      notasCliente: [],
+      clientData: {
+        nombre: item.cliente?.nombre ?? '',
+        telefono: item.cliente?.telefono ?? '',
+        correo: item.cliente?.correo ?? '',
+      },
+    };
+  }
 
-	public addClient(clientName: string): void {
-		const trimmed = clientName.trim();
-		if (!trimmed) {
-			return;
-		}
-		this._manualClients.update((current) => (current.includes(trimmed) ? current : [trimmed, ...current]));
-	}
+  private mapDetail(item: WoDetailApi): WorkOrder {
+    const base = this.mapList(item as WoListApi);
+    return {
+      ...base,
+      diagnostico: item.diagnostico ?? '',
+      checklistInicial: (item.checklists ?? []).filter(c => c.tipo === 'inicial').map(c => ({
+        id: String(c.id), tarea: c.tarea, responsable: c.responsable ?? '', completada: c.completada,
+      })),
+      checklistTrabajo: (item.checklists ?? []).filter(c => c.tipo === 'trabajo').map(c => ({
+        id: String(c.id), tarea: c.tarea, responsable: c.responsable ?? '', completada: c.completada,
+      })),
+      fotosIngreso: (item.fotos ?? []).map(f => f.url),
+      timeline: (item.timeline ?? []).map(t => ({
+        id: String(t.id), descripcion: t.descripcion,
+        timestamp: t.created_at, usuario: t.user?.name ?? 'Sistema',
+      })),
+      notasInternas: (item.notas ?? []).filter(n => n.tipo === 'interna').map(n => ({
+        id: String(n.id), texto: n.texto,
+        usuario: n.user?.name ?? 'Sistema', timestamp: n.created_at,
+      })),
+      notasCliente: (item.notas ?? []).filter(n => n.tipo === 'cliente').map(n => ({
+        id: String(n.id), texto: n.texto,
+        usuario: n.user?.name ?? 'Sistema', timestamp: n.created_at,
+      })),
+      refaccionesAsignadas: (item.partes ?? []).map(p => ({
+        id: String(p.inventory_item_id), nombre: p.nombre,
+        cantidad: p.cantidad, costoUnitario: p.costo_unitario,
+      })),
+      serviciosAsignados: (item.servicios ?? []).map(s => ({
+        id: String(s.price_item_id), nombre: s.nombre, precio: s.precio,
+      })),
+    };
+  }
 
-	public removeManualClient(clientName: string): void {
-		const trimmed = clientName.trim();
-		if (!trimmed) {
-			return;
-		}
-		this._manualClients.update((current) => current.filter((name) => name !== trimmed));
-	}
+  public loadDetail(id: string): void {
+    this._http.get<{ data: WoDetailApi }>(`/api/v1/work-orders/${id}`).subscribe({
+      next: (res) => {
+        const detail = this.mapDetail(res.data as WoDetailApi);
+        this._workOrders.update(orders => {
+          const idx = orders.findIndex(o => o.id === id);
+          if (idx === -1) return [detail, ...orders];
+          const next = [...orders];
+          next[idx] = detail;
+          return next;
+        });
+      },
+    });
+  }
 
-	public replaceManualClient(previousName: string, nextName: string): void {
-		const previous = previousName.trim();
-		const next = nextName.trim();
-		if (!previous || !next) {
-			return;
-		}
-		this._manualClients.update((current) => {
-			const withoutPrevious = current.filter((name) => name !== previous);
-			return withoutPrevious.includes(next) ? withoutPrevious : [next, ...withoutPrevious];
-		});
-	}
+  public getById(id: string): WorkOrder | undefined {
+    return this._workOrders().find(o => o.id === id);
+  }
 
-	public updateClientNameAcrossOrders(previousName: string, nextClientData: ClientData, usuario = 'Asesor'): void {
-		const previous = previousName.trim().toLowerCase();
-		const nextName = nextClientData.nombre.trim();
-		if (!previous || !nextName) {
-			return;
-		}
+  public createWorkOrder(input?: CreateWorkOrderInput): WorkOrder {
+    const nextId = this.buildNextOrderId();
+    const nowDate = this.todayDate();
+    const payload: CreateWorkOrderInput = {
+      cliente: 'Nuevo cliente', telefono: '', correo: '', tecnico: 'Sin asignar',
+      fechaProgramada: nowDate, priority: 'Media',
+      vehicle: { marca: 'Pendiente', modelo: 'Pendiente', anio: 2026, placas: 'PEND-000', vin: 'PENDIENTE', kilometraje: 0 },
+      tipoVehiculo: 'Auto', problema: 'Pendiente de captura', diagnostico: 'Pendiente de diagnostico tecnico',
+      ...input,
+    };
 
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.cliente.trim().toLowerCase() === previous
-					? {
-							...order,
-							cliente: nextName,
-							clientData: {
-								nombre: nextName,
-								telefono: nextClientData.telefono.trim(),
-								correo: nextClientData.correo.trim(),
-							},
-							timeline: [this.createTimeline('Datos de cliente actualizados', usuario), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+    const newOrder: WorkOrder = {
+      id: nextId, cliente: payload.cliente, tecnico: payload.tecnico,
+      fechaIngreso: nowDate, fechaProgramada: payload.fechaProgramada || nowDate,
+      status: 'Agendado', priority: payload.priority, vehicle: { ...payload.vehicle },
+      tipoVehiculo: payload.tipoVehiculo, problema: payload.problema, diagnostico: payload.diagnostico,
+      fotosIngreso: [], checklistInicial: [], checklistTrabajo: [],
+      timeline: [this.createTimeline('OT creada', 'Recepcion')],
+      catalogoRefacciones: [], refaccionesAsignadas: [], catalogoServicios: [], serviciosAsignados: [],
+      cargoCuentasPorCobrarGenerado: false, notasInternas: [], notasCliente: [],
+      clientData: { nombre: payload.cliente, telefono: payload.telefono, correo: payload.correo },
+    };
 
-	public updateClientData(id: string, clientData: ClientData): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							cliente: clientData.nombre,
-							clientData,
-							timeline: [this.createTimeline('Datos de cliente actualizados', 'Asesor'), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+    this._workOrders.update(orders => [newOrder, ...orders]);
+    this._http.post<{ data: WoDetailApi }>('/api/v1/work-orders', {
+      problema: payload.problema,
+      diagnostico: payload.diagnostico,
+      tipo_vehiculo: payload.tipoVehiculo === 'Camión' ? 'Camion' : payload.tipoVehiculo,
+      priority: payload.priority,
+      fecha_ingreso: nowDate,
+      fecha_programada: payload.fechaProgramada,
+      cliente_nombre: payload.cliente,
+      cliente_telefono: payload.telefono || undefined,
+      cliente_correo: payload.correo || undefined,
+      vehiculo_marca: payload.vehicle.marca,
+      vehiculo_modelo: payload.vehicle.modelo,
+      vehiculo_anio: payload.vehicle.anio,
+      vehiculo_placas: payload.vehicle.placas !== 'PEND-000' ? payload.vehicle.placas : undefined,
+      vehiculo_vin: payload.vehicle.vin !== 'PENDIENTE' ? payload.vehicle.vin : undefined,
+      vehiculo_kilometraje: payload.vehicle.kilometraje,
+    }).subscribe({
+      next: (res) => {
+        const realOrder = this.mapDetail(res.data);
+        this._workOrders.update(orders => orders.map(o => o.id === nextId ? realOrder : o));
+      },
+    });
+    return newOrder;
+  }
 
-	public updateVehicleData(id: string, vehicle: VehicleData): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							vehicle,
-							timeline: [this.createTimeline('Datos de vehiculo actualizados', 'Tecnico'), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public getOrCreatePortalToken(id: string): Observable<string> {
+    return this._http
+      .post<{ data: { portal_token: string } }>(`/api/v1/work-orders/${id}/portal-token`, {})
+      .pipe(map((res) => res.data.portal_token));
+  }
 
-	public updateProblemDiagnosis(id: string, problema: string, diagnostico: string): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							problema,
-							diagnostico,
-							timeline: [this.createTimeline('Problema/diagnostico actualizados', 'Tecnico'), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public addClient(_clientName: string): void {}
+  public removeManualClient(_clientName: string): void {}
+  public replaceManualClient(_previous: string, _next: string): void {}
 
-	public updateAssignedTechnician(id: string, tecnico: string): void {
-		const trimmed = tecnico.trim();
-		if (!trimmed) {
-			return;
-		}
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							tecnico: trimmed,
-							timeline: [this.createTimeline(`Tecnico asignado actualizado a ${trimmed}`, 'Supervisor'), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public updateClientNameAcrossOrders(previousName: string, nextClientData: ClientData, _usuario = 'Asesor'): void {
+    const prev = previousName.trim().toLowerCase();
+    this._workOrders.update(orders =>
+      orders.map(o =>
+        o.cliente.trim().toLowerCase() === prev
+          ? { ...o, cliente: nextClientData.nombre, clientData: nextClientData }
+          : o
+      )
+    );
+  }
 
-	public updateScheduledDate(id: string, fechaProgramada: string, usuario = 'Asesor'): void {
-		const trimmedDate = fechaProgramada.trim();
-		if (!trimmedDate) {
-			return;
-		}
+  public updateClientData(id: string, clientData: ClientData): void {
+    this._workOrders.update(orders => orders.map(o =>
+      o.id === id ? { ...o, cliente: clientData.nombre, clientData } : o
+    ));
+    this._http.patch(`/api/v1/work-orders/${id}/client`, {
+      nombre: clientData.nombre, telefono: clientData.telefono, correo: clientData.correo,
+    }).subscribe();
+  }
 
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id && order.fechaProgramada !== trimmedDate
-					? {
-							...order,
-							fechaProgramada: trimmedDate,
-							timeline: [this.createTimeline(`Fecha programada actualizada a ${trimmedDate}`, usuario), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public updateVehicleData(id: string, vehicle: VehicleData): void {
+    this._workOrders.update(orders => orders.map(o => o.id === id ? { ...o, vehicle } : o));
+    this._http.patch(`/api/v1/work-orders/${id}/vehicle`, {
+      placas: vehicle.placas, vin: vehicle.vin, marca: vehicle.marca,
+      modelo: vehicle.modelo, anio: vehicle.anio, kilometraje_actual: vehicle.kilometraje,
+    }).subscribe();
+  }
 
-	public updateStatus(id: string, status: WorkOrderStatus, usuario = 'Supervisor'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id || order.status === status) {
-					return order;
-				}
+  public updateProblemDiagnosis(id: string, problema: string, diagnostico: string): void {
+    this._workOrders.update(orders => orders.map(o => o.id === id ? { ...o, problema, diagnostico } : o));
+    this._http.patch(`/api/v1/work-orders/${id}/diagnosis`, { problema, diagnostico }).subscribe();
+  }
 
-				const updated: WorkOrder = {
-					...order,
-					status,
-					timeline: [this.createTimeline(`Estado actualizado a ${status}`, usuario), ...order.timeline],
-				};
+  public updateAssignedTechnician(id: string, tecnico: string): void {
+    const trimmed = tecnico.trim();
+    if (!trimmed) return;
+    this._workOrders.update(orders => orders.map(o => o.id === id ? { ...o, tecnico: trimmed } : o));
+  }
 
-				if (status === 'Terminado' && !updated.cargoCuentasPorCobrarGenerado) {
-					updated.cargoCuentasPorCobrarGenerado = true;
-					updated.timeline = [
-						this.createTimeline('Cargo generado automaticamente en cuentas por cobrar', 'Finanzas'),
-						...updated.timeline,
-					];
-				}
+  public updateScheduledDate(id: string, fechaProgramada: string, _usuario = 'Asesor'): void {
+    const trimmed = fechaProgramada.trim();
+    if (!trimmed) return;
+    this._workOrders.update(orders => orders.map(o =>
+      o.id === id && o.fechaProgramada !== trimmed ? { ...o, fechaProgramada: trimmed } : o
+    ));
+  }
 
-				return updated;
-			}),
-		);
-	}
+  public updateStatus(id: string, status: WorkOrderStatus, _usuario = 'Supervisor'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id || o.status === status) return o;
+      const updated = { ...o, status };
+      if (status === 'Terminado' && !updated.cargoCuentasPorCobrarGenerado) {
+        updated.cargoCuentasPorCobrarGenerado = true;
+      }
+      return updated;
+    }));
+    this._http.patch(`/api/v1/work-orders/${id}/status`, { status }).subscribe();
+  }
 
-	public updatePriority(id: string, priority: WorkOrderPriority, usuario = 'Supervisor'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id && order.priority !== priority
-					? {
-							...order,
-							priority,
-							timeline: [this.createTimeline(`Prioridad actualizada a ${priority}`, usuario), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public updatePriority(id: string, priority: WorkOrderPriority, _usuario = 'Supervisor'): void {
+    this._workOrders.update(orders => orders.map(o => o.id === id ? { ...o, priority } : o));
+  }
 
-	public toggleChecklist(
-		id: string,
-		listType: 'checklistInicial' | 'checklistTrabajo',
-		itemId: string,
-		usuario = 'Tecnico',
-	): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
+  public toggleChecklist(id: string, listType: 'checklistInicial' | 'checklistTrabajo', itemId: string, _usuario = 'Tecnico'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id) return o;
+      const list = o[listType].map(c => c.id === itemId ? { ...c, completada: !c.completada } as ChecklistItem : c);
+      return { ...o, [listType]: list };
+    }));
+    const apiItemId = itemId.replace(/\D/g, '');
+    if (apiItemId) this._http.patch(`/api/v1/work-orders/${id}/checklist/${apiItemId}`, {}).subscribe();
+  }
 
-				const list = order[listType].map((item) =>
-					item.id === itemId ? ({ ...item, completada: !item.completada } as ChecklistItem) : item,
-				);
-				const changedItem = list.find((item) => item.id === itemId);
+  public addChecklistItem(id: string, listType: 'checklistInicial' | 'checklistTrabajo', tarea: string, responsable: string, _usuario = 'Supervisor'): void {
+    const trimmedTask = tarea.trim();
+    const trimmedOwner = responsable.trim() || 'Sin asignar';
+    if (!trimmedTask) return;
 
-				return {
-					...order,
-					[listType]: list,
-					timeline: changedItem
-						? [
-								this.createTimeline(
-									`Checklist: ${changedItem.tarea} - ${changedItem.completada ? 'completado' : 'pendiente'}`,
-									usuario,
-								),
-								...order.timeline,
-							]
-						: order.timeline,
-				};
-			}),
-		);
-	}
+    const tipo = listType === 'checklistInicial' ? 'inicial' : 'trabajo';
+    this._http.post<{ data: { id: number; tarea: string; responsable: string; completada: boolean } }>(
+      `/api/v1/work-orders/${id}/checklist`,
+      { tipo, tarea: trimmedTask, responsable: trimmedOwner }
+    ).subscribe({
+      next: (res) => {
+        const newItem: ChecklistItem = { id: String(res.data.id), tarea: res.data.tarea, responsable: res.data.responsable, completada: false };
+        this._workOrders.update(orders => orders.map(o =>
+          o.id === id ? { ...o, [listType]: [...o[listType], newItem] } : o
+        ));
+      },
+    });
+  }
 
-	public addChecklistItem(
-		id: string,
-		listType: 'checklistInicial' | 'checklistTrabajo',
-		tarea: string,
-		responsable: string,
-		usuario = 'Supervisor',
-	): void {
-		const trimmedTask = tarea.trim();
-		const trimmedOwner = responsable.trim() || 'Sin asignar';
-		if (!trimmedTask) {
-			return;
-		}
+  public addPhoto(id: string, photo: string, _usuario = 'Recepcion'): void {
+    const trimmed = photo.trim();
+    if (!trimmed) return;
+    this._workOrders.update(orders => orders.map(o =>
+      o.id === id ? { ...o, fotosIngreso: [...o.fotosIngreso, trimmed] } : o
+    ));
+  }
 
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
+  public assignPart(id: string, partId: string, usuario = 'Almacen'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id) return o;
+      const part = o.catalogoRefacciones.find(p => p.id === partId);
+      if (!part || part.stock <= 0) return o;
+      const catalog = o.catalogoRefacciones.map(p => p.id === partId ? { ...p, stock: p.stock - 1 } : p);
+      const assigned = this.mergeAssignedPart(o.refaccionesAsignadas, part);
+      this._inventoryService.consumeForWorkOrder(part.id, id, usuario);
+      return { ...o, catalogoRefacciones: catalog, refaccionesAsignadas: assigned };
+    }));
+  }
 
-				const newItem: ChecklistItem = {
-					id: `chk-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-					tarea: trimmedTask,
-					responsable: trimmedOwner,
-					completada: false,
-				};
-				return {
-					...order,
-					[listType]: [...order[listType], newItem],
-					timeline: [this.createTimeline(`Checklist: tarea agregada (${trimmedTask})`, usuario), ...order.timeline],
-				};
-			}),
-		);
-	}
+  public assignService(id: string, serviceId: string, _usuario = 'Asesor'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id) return o;
+      const service = o.catalogoServicios.find(s => s.id === serviceId);
+      if (!service || o.serviciosAsignados.some(s => s.id === service.id)) return o;
+      const assignedService: AssignedServiceItem = { id: service.id, nombre: service.nombre, precio: service.precio };
+      return { ...o, serviciosAsignados: [...o.serviciosAsignados, assignedService] };
+    }));
+  }
 
-	public addPhoto(id: string, photo: string, usuario = 'Recepcion'): void {
-		const trimmed = photo.trim();
-		if (!trimmed) {
-			return;
-		}
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							fotosIngreso: [...order.fotosIngreso, trimmed],
-							timeline: [this.createTimeline('Foto agregada a la galeria', usuario), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
+  public assignDirectService(id: string, service: any, _usuario = 'Asesor'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id || o.serviciosAsignados.some(s => s.id === service.id)) return o;
+      const assignedService: AssignedServiceItem = {
+        id: service.id, nombre: service.nombre, precio: service.precio,
+        precioAuto: service.precioAuto, precioCamioneta: service.precioCamioneta, precioCamion: service.precioCamion,
+      };
+      return { ...o, serviciosAsignados: [...o.serviciosAsignados, assignedService] };
+    }));
+    this._http.post(`/api/v1/work-orders/${id}/services`, { price_item_id: service.id }).subscribe();
+  }
 
-	public assignPart(id: string, partId: string, usuario = 'Almacen'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
+  public assignDirectPart(id: string, part: any, usuario = 'Almacen'): void {
+    this._workOrders.update(orders => orders.map(o => {
+      if (o.id !== id) return o;
+      const catalogItem: PartCatalogItem = {
+        id: part.id, nombre: part.nombre, sku: part.id,
+        stock: part.stockActual || 1, costo: part.precio ?? part.precioVenta ?? 0,
+      };
+      const assigned = this.mergeAssignedPart(o.refaccionesAsignadas, catalogItem);
+      this._inventoryService.consumeForWorkOrder(part.id, id, usuario);
+      return { ...o, refaccionesAsignadas: assigned };
+    }));
+    this._http.post(`/api/v1/work-orders/${id}/parts`, { inventory_item_id: part.id, cantidad: 1 }).subscribe();
+  }
 
-				const catalog = order.catalogoRefacciones.map((part) =>
-					part.id === partId && part.stock > 0 ? { ...part, stock: part.stock - 1 } : part,
-				);
-				const part = order.catalogoRefacciones.find((p) => p.id === partId);
-				if (!part || part.stock <= 0) {
-					return order;
-				}
+  public addInternalNote(id: string, texto: string, usuario = 'Personal'): void {
+    this.addNote(id, 'notasInternas', texto, usuario, 'interna');
+  }
 
-				const assigned = this.mergeAssignedPart(order.refaccionesAsignadas, part);
-				this._inventoryService.consumeForWorkOrder(part.id, id, usuario);
-				return {
-					...order,
-					catalogoRefacciones: catalog,
-					refaccionesAsignadas: assigned,
-					timeline: [this.createTimeline(`Refaccion asignada: ${part.nombre}`, usuario), ...order.timeline],
-				};
-			}),
-		);
-	}
+  public addCustomerNote(id: string, texto: string, usuario = 'Asesor'): void {
+    this.addNote(id, 'notasCliente', texto, usuario, 'cliente');
+  }
 
-	public assignService(id: string, serviceId: string, usuario = 'Asesor'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
+  public registerClientSignature(id: string, nombreCliente: string): void {
+    const trimmed = nombreCliente.trim();
+    if (!trimmed) return;
+    this._workOrders.update(orders => orders.map(o =>
+      o.id === id ? { ...o, firmaCliente: { nombreCliente: trimmed, timestamp: this.timestampNow() } } : o
+    ));
+  }
 
-				const service = order.catalogoServicios.find((s) => s.id === serviceId);
-				if (!service) {
-					return order;
-				}
-				const exists = order.serviciosAsignados.some((s) => s.id === service.id);
-				if (exists) {
-					return order;
-				}
+  public deleteWorkOrder(id: string): boolean {
+    let deleted = false;
+    this._workOrders.update(orders => {
+      const filtered = orders.filter(o => o.id !== id);
+      deleted = filtered.length !== orders.length;
+      return filtered;
+    });
+    if (deleted) this._http.delete(`/api/v1/work-orders/${id}`, { body: { confirm_id: id } }).subscribe();
+    return deleted;
+  }
 
-				const assignedService: AssignedServiceItem = {
-					id: service.id,
-					nombre: service.nombre,
-					precio: service.precio,
-					precioAuto: service.precioAuto,
-					precioCamioneta: service.precioCamioneta,
-					precioCamion: service.precioCamion,
-				};
+  private addNote(id: string, type: 'notasInternas' | 'notasCliente', texto: string, usuario: string, apiTipo: string): void {
+    const trimmed = texto.trim();
+    if (!trimmed) return;
+    const note: WorkOrderNote = { id: `${type}-${Date.now()}`, texto: trimmed, usuario, timestamp: this.timestampNow() };
+    this._workOrders.update(orders => orders.map(o =>
+      o.id === id ? { ...o, [type]: [note, ...o[type]] } : o
+    ));
+    this._http.post(`/api/v1/work-orders/${id}/notes`, { tipo: apiTipo, texto: trimmed }).subscribe();
+  }
 
-				return {
-					...order,
-					serviciosAsignados: [...order.serviciosAsignados, assignedService],
-					timeline: [this.createTimeline(`Servicio agregado: ${service.nombre}`, usuario), ...order.timeline],
-				};
-			}),
-		);
-	}
+  private mergeAssignedPart(assigned: AssignedPartItem[], part: { id: string; nombre: string; costo: number }): AssignedPartItem[] {
+    const existing = assigned.find(i => i.id === part.id);
+    if (!existing) return [...assigned, { id: part.id, nombre: part.nombre, cantidad: 1, costoUnitario: part.costo }];
+    return assigned.map(i => i.id === part.id ? { ...i, cantidad: i.cantidad + 1 } : i);
+  }
 
-	public assignDirectService(id: string, service: any, usuario = 'Asesor'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
+  private buildNextOrderId(): string {
+    const maxId = this._workOrders()
+      .map(o => Number(o.id.replace('WO-', '')))
+      .filter(v => !Number.isNaN(v))
+      .reduce((max, cur) => cur > max ? cur : max, 1000);
+    return `WO-${maxId + 1}`;
+  }
 
-				const exists = order.serviciosAsignados.some((s) => s.id === service.id);
-				if (exists) {
-					return order;
-				}
+  private createTimeline(descripcion: string, usuario: string) {
+    return { id: `tl-${Date.now()}`, descripcion, timestamp: this.timestampNow(), usuario };
+  }
 
-				const assignedService: AssignedServiceItem = {
-					id: service.id,
-					nombre: service.nombre,
-					precio: service.precio,
-					precioAuto: service.precioAuto,
-					precioCamioneta: service.precioCamioneta,
-					precioCamion: service.precioCamion,
-				};
+  private timestampNow(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  }
 
-				return {
-					...order,
-					serviciosAsignados: [...order.serviciosAsignados, assignedService],
-					timeline: [this.createTimeline(`Servicio agregado: ${service.nombre}`, usuario), ...order.timeline],
-				};
-			}),
-		);
-	}
-
-	public assignDirectPart(id: string, part: any, usuario = 'Almacen'): void {
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
-
-				const catalogItem: PartCatalogItem = {
-					id: part.id,
-					nombre: part.nombre,
-					sku: part.id,
-					stock: part.stockActual || 1,
-					costo: part.precio ?? part.precioVenta ?? 0,
-				};
-
-				const assigned = this.mergeAssignedPart(order.refaccionesAsignadas, catalogItem);
-				this._inventoryService.consumeForWorkOrder(part.id, id, usuario);
-
-				return {
-					...order,
-					refaccionesAsignadas: assigned,
-					timeline: [this.createTimeline(`Refaccion agregada: ${part.nombre}`, usuario), ...order.timeline],
-				};
-			}),
-		);
-	}
-
-	public addInternalNote(id: string, texto: string, usuario = 'Personal'): void {
-		this.addNote(id, 'notasInternas', texto, usuario);
-	}
-
-	public addCustomerNote(id: string, texto: string, usuario = 'Asesor'): void {
-		this.addNote(id, 'notasCliente', texto, usuario);
-	}
-
-	public registerClientSignature(id: string, nombreCliente: string): void {
-		const trimmed = nombreCliente.trim();
-		if (!trimmed) {
-			return;
-		}
-
-		this._workOrders.update((orders) =>
-			orders.map((order) =>
-				order.id === id
-					? {
-							...order,
-							firmaCliente: { nombreCliente: trimmed, timestamp: this.timestampNow() },
-							timeline: [this.createTimeline('Firma digital del cliente registrada', 'Recepcion'), ...order.timeline],
-						}
-					: order,
-			),
-		);
-	}
-
-	public deleteWorkOrder(id: string): boolean {
-		let deleted = false;
-		this._workOrders.update((orders) => {
-			const filtered = orders.filter((order) => order.id !== id);
-			deleted = filtered.length !== orders.length;
-			return filtered;
-		});
-		return deleted;
-	}
-
-	private addNote(id: string, type: 'notasInternas' | 'notasCliente', texto: string, usuario: string): void {
-		const trimmed = texto.trim();
-		if (!trimmed) {
-			return;
-		}
-
-		this._workOrders.update((orders) =>
-			orders.map((order) => {
-				if (order.id !== id) {
-					return order;
-				}
-
-				const note: WorkOrderNote = {
-					id: `${type}-${Date.now()}`,
-					texto: trimmed,
-					usuario,
-					timestamp: this.timestampNow(),
-				};
-
-				return {
-					...order,
-					[type]: [note, ...order[type]],
-					timeline: [
-						this.createTimeline(type === 'notasInternas' ? 'Nota interna agregada' : 'Nota visible al cliente agregada', usuario),
-						...order.timeline,
-					],
-				};
-			}),
-		);
-	}
-
-	private mergeAssignedPart(assigned: AssignedPartItem[], part: { id: string; nombre: string; costo: number }): AssignedPartItem[] {
-		const existing = assigned.find((item) => item.id === part.id);
-		if (!existing) {
-			return [...assigned, { id: part.id, nombre: part.nombre, cantidad: 1, costoUnitario: part.costo }];
-		}
-		return assigned.map((item) => (item.id === part.id ? { ...item, cantidad: item.cantidad + 1 } : item));
-	}
-
-	private buildNextOrderId(): string {
-		const maxId = this._workOrders()
-			.map((order) => Number(order.id.replace('WO-', '')))
-			.filter((value) => !Number.isNaN(value))
-			.reduce((max, current) => (current > max ? current : max), 1000);
-		return `WO-${maxId + 1}`;
-	}
-
-	private createTimeline(descripcion: string, usuario: string) {
-		return {
-			id: `tl-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-			descripcion,
-			timestamp: this.timestampNow(),
-			usuario,
-		};
-	}
-
-	private timestampNow(): string {
-		const now = new Date();
-		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-	}
-
-	private todayDate(): string {
-		const now = new Date();
-		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-	}
+  private todayDate(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
 }

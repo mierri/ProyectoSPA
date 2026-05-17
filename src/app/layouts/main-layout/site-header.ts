@@ -30,7 +30,7 @@ type Crumb = { label: string; url?: string; current: boolean };
 								@if (crumb.current) {
 									<a hlmBreadcrumbPage>{{ crumb.label }}</a>
 								} @else {
-									<a hlmBreadcrumbLink [routerLink]="crumb.url">{{ crumb.label }}</a>
+									<a hlmBreadcrumbLink [link]="crumb.url">{{ crumb.label }}</a>
 								}
 							</li>
 							@if (!crumb.current) {
@@ -100,6 +100,10 @@ export class SiteHeader {
 
 		if (url.startsWith('/app/inventario')) {
 			return [{ label: 'Inventario', current: true }];
+		}
+
+		if (url.startsWith('/app/lista-precios')) {
+			return [{ label: 'Lista de Precios', current: true }];
 		}
 
 		if (url.startsWith('/app/settings')) {

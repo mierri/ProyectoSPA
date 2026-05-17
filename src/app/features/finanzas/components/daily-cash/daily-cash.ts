@@ -190,7 +190,7 @@ export class DailyCashComponent {
 	private readonly cdr = inject(ChangeDetectorRef);
 
 	readonly showForm = signal(false);
-	readonly entries = signal<DailyCashEntry[]>([]);
+	readonly entries = this.dataService.dailyCashEntries;
 
 	formData = {
 		concepto: '',
@@ -220,11 +220,6 @@ export class DailyCashComponent {
 		};
 	});
 
-	constructor() {
-		const realData = this.dataService.getDailyCashEntries();
-		this.entries.set(realData);
-	}
-
 	toggleForm(): void {
 		this.showForm.update((v) => !v);
 	}
@@ -247,7 +242,6 @@ export class DailyCashComponent {
 			usuario: this.formData.usuario,
 		});
 
-		this.entries.set(this.dataService.getDailyCashEntries());
 		this.resetForm();
 		this.showForm.set(false);
 	}
@@ -255,7 +249,6 @@ export class DailyCashComponent {
 	deleteEntry(id: string): void {
 		if (confirm('¿Eliminar este movimiento?')) {
 			this.dataService.removeDailyCashEntry(id);
-			this.entries.set(this.dataService.getDailyCashEntries());
 		}
 	}
 

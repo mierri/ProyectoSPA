@@ -72,6 +72,7 @@ export class StockItemsSectionComponent {
 	protected readonly createStockMinimo = signal(0);
 	protected readonly createPrecio = signal(0);
 	protected readonly createPhoto = signal('');
+	protected readonly createPhotoFile = signal<File | null>(null);
 	protected readonly editingItemId = signal('');
 	protected readonly selectedItem = computed(() => this.items().find((item) => item.id === this.selectedItemId()));
 	protected readonly selectedMovements = computed(() =>
@@ -142,6 +143,7 @@ export class StockItemsSectionComponent {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
+		this.createPhotoFile.set(file);
 		const reader = new FileReader();
 		reader.onload = () => this.createPhoto.set((reader.result as string) || '');
 		reader.readAsDataURL(file);
@@ -150,6 +152,7 @@ export class StockItemsSectionComponent {
 	protected createItem(): void {
 		if (!this.createNombre().trim()) return;
 		const editingId = this.editingItemId();
+		const photoFile = this.createPhotoFile() ?? undefined;
 		if (editingId) {
 			this._service.updateInventoryItem(editingId, {
 				nombre: this.createNombre(),
@@ -162,12 +165,16 @@ export class StockItemsSectionComponent {
 				stockMinimo: this.createStockMinimo(),
 				precio: this.createPrecio(),
 			});
+			if (photoFile) {
+				this._service.uploadItemPhoto(editingId, photoFile);
+			}
 			this._notification.success('Item operativo actualizado.');
 		} else {
 			this._service.createInventoryItem({
 				nombre: this.createNombre(),
 				tipo: this.createTipo(),
 				fotoUrl: this.createPhoto(),
+				photoFile,
 				descripcion: this.createDescripcion(),
 				estado: this.createEstado(),
 				responsable: this.createResponsable(),
@@ -186,6 +193,7 @@ export class StockItemsSectionComponent {
 		this.createNombre.set('');
 		this.createDescripcion.set('');
 		this.createPhoto.set('');
+		this.createPhotoFile.set(null);
 		this.createStockActual.set(0);
 		this.createStockMinimo.set(0);
 		this.createPrecio.set(0);

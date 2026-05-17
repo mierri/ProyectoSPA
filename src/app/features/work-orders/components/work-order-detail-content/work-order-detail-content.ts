@@ -4,11 +4,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
-import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { NotificationService } from '../../../../core';
 import { workOrderPriorityVariant, workOrderStatusVariant, type WorkOrderPriority, type WorkOrderStatus } from '../../models';
 import { WorkOrdersService } from '../../services';
+import { ShareWorkOrderDialogComponent, type ShareWorkOrderDialogContext } from '../share-work-order-dialog';
 import {
 	WorkOrderChecklistSectionComponent,
 	WorkOrderDetailsSectionComponent,
@@ -25,7 +26,6 @@ import {
 		HlmBadgeImports,
 		HlmButtonImports,
 		HlmTabsImports,
-		HlmAlertDialogImports,
 		WorkOrderDetailsSectionComponent,
 		WorkOrderChecklistSectionComponent,
 		WorkOrderGallerySectionComponent,
@@ -42,6 +42,7 @@ export class WorkOrderDetailContentComponent {
 	private readonly _router = inject(Router);
 	private readonly _service = inject(WorkOrdersService);
 	private readonly _notification = inject(NotificationService);
+	private readonly _dialog = inject(HlmDialogService);
 	private readonly _params = toSignal(this._route.paramMap, { initialValue: this._route.snapshot.paramMap });
 
 	protected readonly statusVariant = workOrderStatusVariant;
@@ -51,6 +52,20 @@ export class WorkOrderDetailContentComponent {
 
 	protected goBack(): void {
 		void this._router.navigate(['/app/ordenes-trabajo']);
+	}
+
+	protected shareWithClient(id: string): void {
+		this._service.getOrCreatePortalToken(id).subscribe({
+			next: (token) => {
+				const portalUrl = `${window.location.origin}/portal/${token}`;
+				const context: ShareWorkOrderDialogContext = { orderId: id, portalUrl };
+				this._dialog.open(ShareWorkOrderDialogComponent, {
+					context,
+					contentClass: 'share-work-order-dialog-content',
+				});
+			},
+			error: () => this._notification.error('No se pudo generar el enlace del portal.'),
+		});
 	}
 
 	protected cerrarOrden(): void {

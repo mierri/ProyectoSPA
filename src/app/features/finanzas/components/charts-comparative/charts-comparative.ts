@@ -218,11 +218,11 @@ export class ChartsComparativeComponent {
 	readonly totalBalance = this.financesService.totalBalance;
 
 	getTopTechnician() {
-		return this.financesService.getTopTechnicians(1)[0];
+		return this.financesService.getTopTechnicians(1)[0] ?? { tecnico: '-', ingresoGenerado: 0 };
 	}
 
 	getMostPopularService() {
-		return this.financesService.getMostPopularServices(1)[0];
+		return this.financesService.getMostPopularServices(1)[0] ?? { servicio: '-', cantidad: 0, ingresoTotal: 0 };
 	}
 
 	getAverageMonthlyIncome(): number {

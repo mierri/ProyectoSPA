@@ -89,10 +89,14 @@ export class ClientsVehiclesContentComponent {
 	protected tagClass(tag: string): string {
 		switch (tag) {
 			case 'Con adeudo':
+			case 'Vencido':
 				return 'client-tag-adeudo';
 			case 'Frecuente':
+			case 'Al corriente':
 				return 'client-tag-frecuente';
 			case 'Nuevo':
+			case 'Sin historial':
+			case 'Pendiente':
 			default:
 				return 'client-tag-nuevo';
 		}

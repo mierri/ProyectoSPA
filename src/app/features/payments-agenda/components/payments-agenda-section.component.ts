@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideTrash2, lucideCamera, lucidePlus, lucideX, lucidePencil, lucideCheck } from '@ng-icons/lucide';
+import { lucideTrash2, lucideCamera, lucidePlus, lucideX, lucidePencil, lucideCheck, lucideCalendarPlus, lucideCalendarCheck } from '@ng-icons/lucide';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -9,7 +9,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmCalendarImports } from '../../../components/ui/calendar/src';
-import { NotificationService } from '../../../core';
+import { NotificationService, GoogleCalendarService } from '../../../core';
 import { DatePickerFieldComponent } from '../../../shared';
 import { PaymentsAgendaService } from '../services/payments-agenda.service';
 import { Payment } from '../models/payment.model';
@@ -30,7 +30,7 @@ import { PhotoUploadDialogComponent, type PhotoUploadDialogContext } from './pho
     NgIcon,
     DatePickerFieldComponent,
   ],
-  providers: [provideIcons({ lucideTrash2, lucideCamera, lucidePlus, lucideX, lucidePencil, lucideCheck })],
+  providers: [provideIcons({ lucideTrash2, lucideCamera, lucidePlus, lucideX, lucidePencil, lucideCheck, lucideCalendarPlus, lucideCalendarCheck })],
   templateUrl: './payments-agenda-section.html',
   styleUrl: './payments-agenda-section.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +39,11 @@ export class PaymentsAgendaSectionComponent implements OnInit {
   private readonly service = inject(PaymentsAgendaService);
   private readonly notification = inject(NotificationService);
   private readonly dialog = inject(HlmDialogService);
+  protected readonly googleCalendar = inject(GoogleCalendarService);
   public readonly payments = computed(() => this.service.getPayments());
+
+  protected readonly isExportingAll = signal(false);
+  protected readonly exportingPaymentId = signal<string | null>(null);
 
   protected readonly search = signal('');
   protected readonly filterDateStart = signal('');
@@ -180,6 +184,35 @@ export class PaymentsAgendaSectionComponent implements OnInit {
     }
     this.service.updatePayment(payment.id, { estado: 'Pagado' });
     this.notification.success('Pago confirmado correctamente.');
+  }
+
+  protected async exportAllToGoogleCalendar(): Promise<void> {
+    this.isExportingAll.set(true);
+    try {
+      const { success, failed } = await this.googleCalendar.exportAllPendingPayments(this.payments());
+      if (success > 0) {
+        this.notification.success(`${success} pago(s) exportado(s) a Google Calendar.`);
+      }
+      if (failed > 0) {
+        this.notification.error(`${failed} pago(s) no pudieron exportarse.`);
+      }
+    } catch (err: any) {
+      this.notification.error(err?.message ?? 'Error al conectar con Google Calendar.');
+    } finally {
+      this.isExportingAll.set(false);
+    }
+  }
+
+  protected async exportPaymentToGoogleCalendar(payment: Payment): Promise<void> {
+    this.exportingPaymentId.set(payment.id);
+    try {
+      await this.googleCalendar.exportPayment(payment);
+      this.notification.success(`"${payment.concepto}" exportado a Google Calendar.`);
+    } catch (err: any) {
+      this.notification.error(err?.message ?? 'Error al exportar a Google Calendar.');
+    } finally {
+      this.exportingPaymentId.set(null);
+    }
   }
 }
 

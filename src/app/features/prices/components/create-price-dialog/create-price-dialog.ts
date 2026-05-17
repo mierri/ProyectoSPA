@@ -166,4 +166,8 @@ export class CreatePriceDialogComponent {
     this.sistema.set(sist);
     this.familia.set('');
   }
+
+  protected setNumeric(sig: { set: (v: string) => void }, event: Event): void {
+    sig.set((event.target as HTMLInputElement).value);
+  }
 }

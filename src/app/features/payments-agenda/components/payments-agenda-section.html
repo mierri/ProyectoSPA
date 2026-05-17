@@ -11,6 +11,18 @@
       <button hlmBtn size="sm" [variant]="viewMode() === 'calendar' ? 'default' : 'outline'" type="button" (click)="viewMode.set('calendar')">
         Calendario
       </button>
+      <button
+        hlmBtn
+        size="sm"
+        variant="outline"
+        type="button"
+        [disabled]="isExportingAll()"
+        (click)="exportAllToGoogleCalendar()"
+        title="Exportar pagos pendientes a Google Calendar"
+      >
+        <ng-icon [name]="isExportingAll() ? 'lucideCalendarCheck' : 'lucideCalendarPlus'" class="size-4" />
+        {{ isExportingAll() ? 'Exportando...' : 'Exportar a Google Calendar' }}
+      </button>
       <button hlmBtn type="button" (click)="createPayment()">
         <ng-icon name="lucidePlus" />
         Agregar pago
@@ -88,27 +100,41 @@
                 </td>
                 <td hlmTd>
                   <div class="actions-cell">
-                    <button 
-                      hlmBtn 
-                      size="icon" 
-                      variant="outline" 
-                      type="button" 
-                      (click)="editPayment(payment)" 
+                    <button
+                      hlmBtn
+                      size="icon"
+                      variant="outline"
+                      type="button"
+                      (click)="editPayment(payment)"
                       title="Editar pago"
                     >
                       <ng-icon name="lucidePencil" class="size-4" />
                     </button>
-                    <button 
-                      hlmBtn 
-                      size="icon" 
+                    <button
+                      hlmBtn
+                      size="icon"
                       [variant]="payment.estado === 'Pagado' ? 'default' : 'outline'"
                       [disabled]="payment.estado === 'Pagado'"
-                      type="button" 
-                      (click)="confirmPayment(payment)" 
+                      type="button"
+                      (click)="confirmPayment(payment)"
                       title="Confirmar pago"
                       class="[&]:bg-success [&]:text-success-foreground [&]:hover:bg-success/90"
                     >
                       <ng-icon name="lucideCheck" class="size-4" />
+                    </button>
+                    <button
+                      hlmBtn
+                      size="icon"
+                      variant="outline"
+                      type="button"
+                      [disabled]="exportingPaymentId() === payment.id"
+                      (click)="exportPaymentToGoogleCalendar(payment)"
+                      title="Exportar a Google Calendar"
+                    >
+                      <ng-icon
+                        [name]="exportingPaymentId() === payment.id ? 'lucideCalendarCheck' : 'lucideCalendarPlus'"
+                        class="size-4"
+                      />
                     </button>
                     <button hlmBtn size="icon" variant="destructive" type="button" (click)="deletePayment(payment.id)" title="Eliminar pago">
                       <ng-icon name="lucideTrash2" class="size-4" />
@@ -161,17 +187,31 @@
                     <button hlmBtn size="icon" variant="outline" type="button" (click)="editPayment(payment)" title="Editar pago">
                       <ng-icon name="lucidePencil" class="size-4" />
                     </button>
-                    <button 
-                      hlmBtn 
-                      size="icon" 
+                    <button
+                      hlmBtn
+                      size="icon"
                       [variant]="payment.estado === 'Pagado' ? 'default' : 'outline'"
                       [disabled]="payment.estado === 'Pagado'"
-                      type="button" 
-                      (click)="confirmPayment(payment)" 
+                      type="button"
+                      (click)="confirmPayment(payment)"
                       title="Confirmar pago"
                       class="[&]:bg-success [&]:text-success-foreground [&]:hover:bg-success/90"
                     >
                       <ng-icon name="lucideCheck" class="size-4" />
+                    </button>
+                    <button
+                      hlmBtn
+                      size="icon"
+                      variant="outline"
+                      type="button"
+                      [disabled]="exportingPaymentId() === payment.id"
+                      (click)="exportPaymentToGoogleCalendar(payment)"
+                      title="Exportar a Google Calendar"
+                    >
+                      <ng-icon
+                        [name]="exportingPaymentId() === payment.id ? 'lucideCalendarCheck' : 'lucideCalendarPlus'"
+                        class="size-4"
+                      />
                     </button>
                     <button hlmBtn size="icon" variant="outline" type="button" (click)="onComprobanteSelected(payment)" title="Gestionar comprobante">
                       <ng-icon name="lucideCamera" class="size-4" />

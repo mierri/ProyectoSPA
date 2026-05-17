@@ -1,43 +1,40 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
-import { TempAuthService } from '../../core/auth/auth.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
 	selector: 'login-form',
-	imports: [ReactiveFormsModule /*, RouterLink */, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
+	imports: [ReactiveFormsModule, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<hlm-card>
 			<hlm-card-header>
 				<h3 hlmCardTitle>Inicie sesión</h3>
-				<p hlmCardDescription>Use las credenciales temporales que se muestran a continuación.</p>
+				<p hlmCardDescription>Ingrese sus credenciales para continuar.</p>
 			</hlm-card-header>
 			<div hlmCardContent>
 				<form [formGroup]="form" (ngSubmit)="login()">
 					<hlm-field-group>
 						<hlm-field>
-							<label hlmFieldLabel for="username">Usuario</label>
-							<input hlmInput type="text" id="username" placeholder="Nombre de usuario temporal" formControlName="username" />
-							<hlm-field-error validator="required">El nombre de usuario es obligatorio.</hlm-field-error>
+							<label hlmFieldLabel for="email">Correo electrónico</label>
+							<input hlmInput type="email" id="email" placeholder="admin@spa.com" formControlName="email" />
+							<hlm-field-error validator="required">El correo es obligatorio.</hlm-field-error>
+							<hlm-field-error validator="email">Ingrese un correo válido.</hlm-field-error>
 						</hlm-field>
 						<hlm-field>
-							<div class="flex items-center">
-								<label hlmFieldLabel for="password">Contraseña</label>
-								<!-- <a hlmFieldDescription class="ml-auto text-sm underline-offset-4 hover:underline" routerLink=".">
-									¿Olvidó su contraseña?
-								</a> -->
-							</div>
-							<input hlmInput type="password" id="password" formControlName="password" placeholder="Contraseña temporal" />
+							<label hlmFieldLabel for="password">Contraseña</label>
+							<input hlmInput type="password" id="password" formControlName="password" placeholder="••••••••" />
 							<hlm-field-error validator="required">La contraseña es obligatoria.</hlm-field-error>
-							<hlm-field-error validator="minlength">La contraseña debe tener al menos 8 caracteres.</hlm-field-error>
 						</hlm-field>
 						<hlm-field>
-							<button hlmBtn type="submit" [disabled]="form.invalid">Iniciar sesión</button>
+							<button hlmBtn type="submit" [disabled]="form.invalid || loading()">
+								{{ loading() ? 'Iniciando...' : 'Iniciar sesión' }}
+							</button>
 							@if (loginError()) {
 								<p class="text-destructive text-sm">{{ loginError() }}</p>
 							}
@@ -45,42 +42,39 @@ import { TempAuthService } from '../../core/auth/auth.service';
 					</hlm-field-group>
 				</form>
 			</div>
-			<hlm-card-footer>
-				<p hlmFieldDescription class="text-xs leading-5">
-					Credenciales temporales: <br />
-					Usuario: <strong>{{ tempCredentials.username }}</strong><br />
-					Contraseña: <strong>{{ tempCredentials.password }}</strong>
-				</p>
-			</hlm-card-footer>
 		</hlm-card>
 	`,
 })
 export class LoginForm {
-	private readonly _fb = inject(FormBuilder);
+	private readonly _fb     = inject(FormBuilder);
 	private readonly _router = inject(Router);
-	private readonly _auth = inject(TempAuthService);
+	private readonly _auth   = inject(AuthService);
 
 	public form = this._fb.group({
-		username: ['', [Validators.required]],
-		password: ['', [Validators.required, Validators.minLength(8)]],
+		email:    ['', [Validators.required, Validators.email]],
+		password: ['', [Validators.required]],
 	});
-	public readonly tempCredentials = this._auth.credentials;
+
+	public readonly loading    = signal(false);
 	public readonly loginError = signal<string | null>(null);
 
 	public login() {
-		if (this.form.invalid) {
-			return;
-		}
+		if (this.form.invalid) return;
 
-		const username = this.form.controls.username.value ?? '';
+		this.loading.set(true);
+		this.loginError.set(null);
+
+		const email    = this.form.controls.email.value ?? '';
 		const password = this.form.controls.password.value ?? '';
-		const ok = this._auth.login(username, password);
-		if (ok) {
-			this.loginError.set(null);
-			void this._router.navigate(['/app']);
-			return;
-		}
 
-		this.loginError.set('Credenciales temporales inválidas.');
+		this._auth.login(email, password).subscribe({
+			next: () => void this._router.navigate(['/app']),
+			error: (err) => {
+				this.loading.set(false);
+				this.loginError.set(
+					err.status === 401 ? 'Credenciales incorrectas.' : 'Error al conectar con el servidor.'
+				);
+			},
+		});
 	}
 }

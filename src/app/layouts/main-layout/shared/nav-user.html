@@ -4,8 +4,7 @@
 	<li hlmSidebarMenuItem>
 		<button hlmSidebarMenuButton size="lg" [hlmDropdownMenuTrigger]="menu" [side]="_menuSide()" align="end">
 			<hlm-avatar class="user-avatar">
-				<img [src]="u.avatar" [alt]="u.name" hlmAvatarImage />
-				<span hlmAvatarFallback>{{ u.name.slice(0, 2).toUpperCase() }}</span>
+				<span hlmAvatarFallback>{{ u.initials }}</span>
 			</hlm-avatar>
 			<div class="user-info">
 				<span>{{ u.name }}</span>
@@ -21,8 +20,7 @@
 		<hlm-dropdown-menu-label>
 			<div class="menu-user">
 				<hlm-avatar class="user-avatar">
-					<img [src]="u.avatar" [alt]="u.name" hlmAvatarImage />
-					<span hlmAvatarFallback>{{ u.name.slice(0, 2).toUpperCase() }}</span>
+					<span hlmAvatarFallback>{{ u.initials }}</span>
 				</hlm-avatar>
 				<div class="user-info">
 					<span>{{ u.name }}</span>

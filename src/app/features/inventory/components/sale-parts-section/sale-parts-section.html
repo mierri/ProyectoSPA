@@ -76,7 +76,7 @@
 				<tbody hlmTBody>
 					@for (item of items(); track item.id) {
 						<tr hlmTr>
-							<td hlmTd><img class="thumb" [src]="item.fotoUrl" [alt]="item.nombre" /></td>
+							<td hlmTd>@if (item.fotoUrl) { <img class="thumb" [src]="item.fotoUrl" [alt]="item.nombre" /> }</td>
 							<td hlmTd>
 								<div class="font-medium">{{ item.nombre }}</div>
 								<div class="text-muted-foreground text-xs">{{ item.descripcion }}</div>

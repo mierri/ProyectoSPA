@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCar } from '@ng-icons/lucide';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
-import { data } from './shared/data';
+import { AuthService } from '../../core/auth/auth.service';
+import { navMainSections, navSecondary } from './shared/data';
 import { NavMain } from './shared/nav-main';
 import { NavSecondary } from './shared/nav-secondary';
 import { NavUser } from './shared/nav-user';
@@ -10,7 +11,7 @@ import { NavUser } from './shared/nav-user';
 @Component({
 	selector: 'spartan-app-sidebar-inset',
 	imports: [HlmSidebarImports, NgIcon, NavMain, NavUser, NavSecondary],
-	providers: [provideIcons({ lucideCar})],
+	providers: [provideIcons({ lucideCar })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<div hlmSidebarWrapper>
@@ -34,11 +35,11 @@ import { NavUser } from './shared/nav-user';
 				</hlm-sidebar-header>
 
 				<hlm-sidebar-content>
-					<spartan-nav-main [sections]="data.navMainSections" />
-					<spartan-nav-secondary class="mt-auto" [items]="data.navSecondary" />
+					<spartan-nav-main [sections]="filteredSections()" />
+					<spartan-nav-secondary class="mt-auto" [items]="navSecondary" />
 				</hlm-sidebar-content>
 				<hlm-sidebar-footer>
-					<spartan-nav-user [user]="data.user" />
+					<spartan-nav-user />
 				</hlm-sidebar-footer>
 			</hlm-sidebar>
 			<ng-content />
@@ -46,5 +47,17 @@ import { NavUser } from './shared/nav-user';
 	`,
 })
 export class AppSidebarInset {
-	public readonly data = data;
+	private readonly _authService = inject(AuthService);
+
+	protected readonly navSecondary = navSecondary;
+
+	protected readonly filteredSections = computed(() => {
+		const permissions = this._authService.currentUser()?.permissions ?? [];
+		return navMainSections
+			.map(section => ({
+				...section,
+				items: section.items.filter(item => !item.permission || permissions.includes(item.permission)),
+			}))
+			.filter(section => section.items.length > 0);
+	});
 }

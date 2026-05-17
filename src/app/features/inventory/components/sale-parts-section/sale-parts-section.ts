@@ -54,6 +54,7 @@ export class SalePartsSectionComponent {
 	protected readonly createPrecio = signal(0);
 	protected readonly createLinkedPartId = signal('');
 	protected readonly createPhoto = signal('');
+	protected readonly createPhotoFile = signal<File | null>(null);
 
 	protected selectItem(itemId: string): void {
 		this.selectedItemId.set(itemId);
@@ -144,6 +145,7 @@ export class SalePartsSectionComponent {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
+		this.createPhotoFile.set(file);
 		const reader = new FileReader();
 		reader.onload = () => this.createPhoto.set((reader.result as string) || '');
 		reader.readAsDataURL(file);
@@ -152,6 +154,7 @@ export class SalePartsSectionComponent {
 	protected createSaleItem(): void {
 		if (!this.createNombre().trim()) return;
 		const editingId = this.editingItemId();
+		const photoFile = this.createPhotoFile() ?? undefined;
 		if (editingId) {
 			this._service.updateInventoryItem(editingId, {
 				nombre: this.createNombre(),
@@ -165,12 +168,16 @@ export class SalePartsSectionComponent {
 				precioVenta: this.createPrecio(),
 				linkedPartId: this.createLinkedPartId().trim() || undefined,
 			});
+			if (photoFile) {
+				this._service.uploadItemPhoto(editingId, photoFile);
+			}
 			this._notification.success('Parte en venta actualizada.');
 		} else {
 			this._service.createInventoryItem({
 				nombre: this.createNombre(),
 				tipo: 'Parte en venta',
 				fotoUrl: this.createPhoto(),
+				photoFile,
 				descripcion: this.createDescripcion(),
 				estado: this.createEstado(),
 				responsable: this.createResponsable(),
@@ -190,6 +197,7 @@ export class SalePartsSectionComponent {
 		this.createNombre.set('');
 		this.createDescripcion.set('');
 		this.createPhoto.set('');
+		this.createPhotoFile.set(null);
 		this.createPrecio.set(0);
 		this.createLinkedPartId.set('');
 		this.createStockActual.set(0);

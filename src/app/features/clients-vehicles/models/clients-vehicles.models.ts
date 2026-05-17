@@ -1,6 +1,6 @@
 import type { WorkOrderPriority, WorkOrderStatus } from '../../work-orders/models';
 
-export type ClientTag = 'Nuevo' | 'Frecuente' | 'Con adeudo';
+export type ClientTag = 'Nuevo' | 'Frecuente' | 'Con adeudo' | 'Sin historial' | 'Al corriente' | 'Pendiente' | 'Vencido';
 export type PaymentState = 'Pagado' | 'Pendiente';
 
 export interface ClientProfileMock {

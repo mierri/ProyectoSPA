@@ -12,20 +12,7 @@
 			<div class="flex items-center gap-2">
 							 <button hlmBtn variant="outline" type="button" (click)="goBack()">Volver al listado</button>
 							 <button hlmBtn type="button" (click)="cerrarOrden()">Cerrar OT</button>
-							 <hlm-alert-dialog>
-								<button hlmAlertDialogTrigger hlmBtn variant="outline" type="button">Compartir OT con cliente</button>
-								<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
-									 <hlm-alert-dialog-header>
-										 <h2 hlmAlertDialogTitle>Función próximamente</h2>
-									 </hlm-alert-dialog-header>
-									 <p hlmAlertDialogDescription>
-										 Esta función estará disponible en la siguiente fase, cuando se integre el backend. Aquí podrás generar un enlace único para compartir el seguimiento de la OT con el cliente.
-									 </p>
-									 <hlm-alert-dialog-footer>
-										<button hlmAlertDialogCancel (click)="ctx.close()">Aceptar</button>
-									 </hlm-alert-dialog-footer>
-								 </hlm-alert-dialog-content>
-							 </hlm-alert-dialog>
+							 <button hlmBtn variant="outline" type="button" (click)="shareWithClient(ot.id)">Compartir OT con cliente</button>
 			</div>
 		</div>
 

@@ -53,12 +53,13 @@ export interface CreateInventoryItemInput {
 	nombre: string;
 	tipo: InventoryItemType;
 	fotoUrl: string;
+	photoFile?: File;
 	descripcion: string;
 	estado: InventoryItemCondition;
 	responsable: string;
 	stockActual: number;
 	stockMinimo: number;
-	precio?: number; 
-	precioVenta?: number; 
+	precio?: number;
+	precioVenta?: number;
 	linkedPartId?: string;
 }
