@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
@@ -44,11 +44,22 @@ export class WorkOrderDetailContentComponent {
 	private readonly _notification = inject(NotificationService);
 	private readonly _dialog = inject(HlmDialogService);
 	private readonly _params = toSignal(this._route.paramMap, { initialValue: this._route.snapshot.paramMap });
+	private readonly _sendingWhatsApp = signal(false);
 
 	protected readonly statusVariant = workOrderStatusVariant;
 	protected readonly priorityVariant = workOrderPriorityVariant;
 	protected readonly orderId = computed(() => this._params().get('id') ?? '');
 	protected readonly order = computed(() => this._service.getById(this.orderId()));
+	protected readonly canSendWhatsApp = computed(() => !!this.order()?.clientData.telefono.trim());
+	protected readonly isDeliveryDay = computed(() => {
+		const order = this.order();
+		if (!order?.fechaProgramada) return false;
+		const today = new Date();
+		const deliveryDate = new Date(order.fechaProgramada);
+		return deliveryDate.toDateString() === today.toDateString();
+	});
+	protected readonly whatsappActionLabel = computed(() => this.isDeliveryDay() ? 'Enviar recordatorio WhatsApp' : 'Enviar WhatsApp');
+	protected readonly sendingWhatsApp = this._sendingWhatsApp.asReadonly();
 
 	constructor() {
 		this._service.loadDetail(this.orderId());
@@ -73,6 +84,24 @@ export class WorkOrderDetailContentComponent {
 				});
 			},
 			error: () => this._notification.error('No se pudo generar el enlace del portal.'),
+		});
+	}
+
+	protected sendWhatsApp(id: string): void {
+		if (!this.canSendWhatsApp() || this.sendingWhatsApp()) {
+			return;
+		}
+
+		this._sendingWhatsApp.set(true);
+		this._service.sendWhatsAppNotification(id).subscribe({
+			next: (res) => {
+				this._notification.success(res.message || 'WhatsApp enviado correctamente.');
+				this._sendingWhatsApp.set(false);
+			},
+			error: () => {
+				this._sendingWhatsApp.set(false);
+				this._notification.error('No se pudo enviar el WhatsApp.');
+			},
 		});
 	}
 

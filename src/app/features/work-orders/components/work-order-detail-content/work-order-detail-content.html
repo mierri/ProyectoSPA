@@ -8,11 +8,15 @@
 					<span hlmBadge [variant]="priorityVariant(ot.priority)" [ngClass]="['wo-chip', priorityChipClass(ot.priority)]">{{ ot.priority }}</span>
 				</div>
 				<p class="text-muted-foreground text-sm">{{ ot.cliente }} - Tecnico asignado: {{ ot.tecnico }}</p>
+				@if (isDeliveryDay()) {
+					<p class="text-xs text-muted-foreground">Hoy coincide con la fecha estimada de entrega. Puedes avisar al cliente por WhatsApp.</p>
+				}
 			</div>
 			<div class="flex items-center gap-2">
-							 <button hlmBtn variant="outline" type="button" (click)="goBack()">Volver al listado</button>
-							 <button hlmBtn type="button" (click)="cerrarOrden()">Cerrar OT</button>
-							 <button hlmBtn variant="outline" type="button" (click)="shareWithClient(ot.id)">Compartir OT con cliente</button>
+				<button hlmBtn variant="outline" type="button" (click)="goBack()">Volver al listado</button>
+				<button hlmBtn type="button" (click)="cerrarOrden()">Cerrar OT</button>
+				<button hlmBtn variant="outline" type="button" (click)="shareWithClient(ot.id)">Compartir OT con cliente</button>
+				<button hlmBtn variant="secondary" type="button" [disabled]="!canSendWhatsApp() || sendingWhatsApp()" (click)="sendWhatsApp(ot.id)">{{ sendingWhatsApp() ? 'Enviando...' : whatsappActionLabel() }}</button>
 			</div>
 		</div>
 

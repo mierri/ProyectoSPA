@@ -210,6 +210,10 @@ export class WorkOrdersService {
     return this._http.post<void>(`/api/v1/work-orders/${id}/portal-share`, { correo });
   }
 
+  public sendWhatsAppNotification(id: string): Observable<{ message: string }> {
+    return this._http.post<{ message: string }>(`/api/v1/work-orders/${id}/whatsapp`, {});
+  }
+
   public addClient(_clientName: string): void {}
   public removeManualClient(_clientName: string): void {}
   public replaceManualClient(_previous: string, _next: string): void {}
