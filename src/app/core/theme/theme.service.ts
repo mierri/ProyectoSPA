@@ -3,6 +3,9 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 
 export type Theme = 'light' | 'dark';
 
+/**
+ * Stores the current visual theme and applies it to the document root.
+ */
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
 	private static readonly STORAGE_KEY = 'colosio-theme';

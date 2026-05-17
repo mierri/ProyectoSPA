@@ -9,6 +9,17 @@
 	gap: 1.25rem;
 }
 
+.email-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.email-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
 .qr-container {
 	display: flex;
 	justify-content: center;

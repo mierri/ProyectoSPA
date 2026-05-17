@@ -189,8 +189,12 @@ export class PriceQuoterComponent {
     }
   }
 
-  private parsePrice(priceStr: string): number {
-    return parseFloat(priceStr.replace(/[$,]/g, ''));
+  private parsePrice(priceStr: unknown): number {
+    if (priceStr === null || typeof priceStr === 'undefined') return 0;
+    const s = typeof priceStr === 'string' ? priceStr : String(priceStr);
+    const cleaned = s.replace(/[$,]/g, '').trim();
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
   }
 
   private roundPrice(price: number): number {

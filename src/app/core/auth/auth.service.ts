@@ -14,6 +14,9 @@ interface LoginResponse {
   data: { token: string; user: AuthUser };
 }
 
+/**
+ * Stores the authenticated session and coordinates login/logout requests.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private static readonly TOKEN_KEY = 'auth_token';
@@ -27,6 +30,7 @@ export class AuthService {
   public readonly currentUser    = this._user.asReadonly();
   public readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
+  /** Authenticates the user and caches the token in local storage. */
   public login(email: string, password: string) {
     return this._http.post<LoginResponse>('/api/v1/auth/login', { email, password }).pipe(
       tap(res => {
@@ -38,6 +42,7 @@ export class AuthService {
     );
   }
 
+  /** Ends the current session on the API and clears local credentials. */
   public logout() {
     this._http.post('/api/v1/auth/logout', {}).subscribe({ error: () => {} });
     localStorage.removeItem(AuthService.TOKEN_KEY);
@@ -46,6 +51,7 @@ export class AuthService {
     this._isAuthenticated.set(false);
   }
 
+  /** Updates the cached user profile used across the app shell. */
   public setCurrentUser(user: AuthUser | null): void {
     if (user) {
       localStorage.setItem(AuthService.USER_KEY, JSON.stringify(user));
@@ -56,6 +62,7 @@ export class AuthService {
     this._user.set(user);
   }
 
+  /** Returns the persisted bearer token if one exists. */
   public getToken(): string | null {
     return localStorage.getItem(AuthService.TOKEN_KEY);
   }

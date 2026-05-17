@@ -9,6 +9,9 @@ declare var google: any;
 const GOOGLE_CLIENT_ID = '80705178944-jgg86i7fbjogq5rpo960r3ftkehoicua.apps.googleusercontent.com';
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
 
+/**
+ * Coordinates Google Calendar OAuth and event export for payment reminders.
+ */
 @Injectable({ providedIn: 'root' })
 export class GoogleCalendarService {
   private tokenClient: any = null;
@@ -18,6 +21,7 @@ export class GoogleCalendarService {
 
   readonly isAuthenticated = signal(false);
 
+  /** Loads Google Identity Services on demand. */
   private loadGisScript(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (typeof google !== 'undefined' && google.accounts) {
@@ -40,6 +44,7 @@ export class GoogleCalendarService {
     });
   }
 
+  /** Initializes the GIS token client once the SDK is available. */
   private async initialize(): Promise<void> {
     await this.loadGisScript();
     this.tokenClient = google.accounts.oauth2.initTokenClient({
@@ -63,6 +68,7 @@ export class GoogleCalendarService {
     });
   }
 
+  /** Ensures the user has a valid Google access token. */
   private async ensureAuthenticated(): Promise<string> {
     if (this.accessToken) return this.accessToken;
 
@@ -77,11 +83,13 @@ export class GoogleCalendarService {
     });
   }
 
+  /** Exports a single payment reminder into Google Calendar. */
   async exportPayment(payment: Payment): Promise<void> {
     const token = await this.ensureAuthenticated();
     await this.createEvent(token, payment);
   }
 
+  /** Exports all pending payments and returns a success/failure summary. */
   async exportAllPendingPayments(payments: Payment[]): Promise<{ success: number; failed: number }> {
     const token = await this.ensureAuthenticated();
     const pending = payments.filter(p => p.estado !== 'Pagado');
@@ -100,6 +108,7 @@ export class GoogleCalendarService {
     return { success, failed };
   }
 
+  /** Creates the calendar event payload and posts it to Google Calendar. */
   private async createEvent(token: string, payment: Payment): Promise<void> {
     const monto = payment.montoPresupuestado.toLocaleString('es-MX', {
       minimumFractionDigits: 2,
@@ -151,6 +160,7 @@ export class GoogleCalendarService {
     }
   }
 
+  /** Revokes the current Google token and clears local authentication state. */
   signOut(): void {
     if (this.accessToken) {
       google.accounts.oauth2.revoke(this.accessToken, () => {});

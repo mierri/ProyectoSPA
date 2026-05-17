@@ -206,6 +206,10 @@ export class WorkOrdersService {
       .pipe(map((res) => res.data.portal_token));
   }
 
+  public sendPortalShareEmail(id: string, correo: string): Observable<void> {
+    return this._http.post<void>(`/api/v1/work-orders/${id}/portal-share`, { correo });
+  }
+
   public addClient(_clientName: string): void {}
   public removeManualClient(_clientName: string): void {}
   public replaceManualClient(_previous: string, _next: string): void {}

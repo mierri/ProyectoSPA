@@ -50,6 +50,10 @@ export class WorkOrderDetailContentComponent {
 	protected readonly orderId = computed(() => this._params().get('id') ?? '');
 	protected readonly order = computed(() => this._service.getById(this.orderId()));
 
+	constructor() {
+		this._service.loadDetail(this.orderId());
+	}
+
 	protected goBack(): void {
 		void this._router.navigate(['/app/ordenes-trabajo']);
 	}
@@ -58,7 +62,11 @@ export class WorkOrderDetailContentComponent {
 		this._service.getOrCreatePortalToken(id).subscribe({
 			next: (token) => {
 				const portalUrl = `${window.location.origin}/portal/${token}`;
-				const context: ShareWorkOrderDialogContext = { orderId: id, portalUrl };
+				const context: ShareWorkOrderDialogContext = {
+					orderId: id,
+					portalUrl,
+					clientEmail: this.order()?.clientData.correo ?? '',
+				};
 				this._dialog.open(ShareWorkOrderDialogComponent, {
 					context,
 					contentClass: 'share-work-order-dialog-content',

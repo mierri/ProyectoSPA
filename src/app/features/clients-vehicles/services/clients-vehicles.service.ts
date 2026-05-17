@@ -23,12 +23,24 @@ interface ClientDetailApi extends ClientApi {
 }
 
 interface VehicleApi {
-  id: number; marca: string; modelo: string; anio: number; placas: string; vin: string;
+  id: number;
+  marca: string;
+  modelo: string;
+  anio: number;
+  placas: string;
+  vin: string;
+  services?: string[];
+  workOrderIds?: string[];
 }
 
 interface WoHistoryApi {
-  id: string; status: string; priority: string; fecha_programada: string;
-  tecnico?: { name: string } | null; vehiculo?: { marca: string; modelo: string; anio: number; placas: string } | null;
+  id: string;
+  status: string;
+  priority: string;
+  fecha_programada: string;
+  tecnico?: { name: string } | null;
+  vehiculo?: { marca: string; modelo: string; anio: number; placas: string } | null;
+  paymentState?: string;
 }
 
 interface Paginated<T> { data: T[]; meta: { last_page: number } }
@@ -121,7 +133,9 @@ export class ClientsVehiclesService {
         const item = res.data;
         const vehicles: ClientVehicleHistoryItem[] = (item.vehicles ?? []).map(v => ({
           id: String(v.id), marca: v.marca, modelo: v.modelo, anio: v.anio,
-          placas: v.placas, vin: v.vin, services: [], workOrderIds: [],
+          placas: v.placas, vin: v.vin,
+          services: v.services ?? [],
+          workOrderIds: (v.workOrderIds ?? []).map(String),
         }));
         const workOrders: ClientWorkOrderHistoryItem[] = (item.workOrders ?? []).map(wo => ({
           id: wo.id, status: wo.status as any, priority: wo.priority as any,
@@ -129,7 +143,7 @@ export class ClientsVehiclesService {
           tecnico: wo.tecnico?.name ?? 'Sin asignar',
           vehiculo: wo.vehiculo ? `${wo.vehiculo.marca} ${wo.vehiculo.modelo} ${wo.vehiculo.anio}` : '',
           placas: wo.vehiculo?.placas ?? '',
-          paymentState: 'Pendiente' as const,
+          paymentState: (wo.paymentState ?? 'Pendiente') as 'Pagado' | 'Pendiente',
         }));
         callback({
           id: String(item.id), nombre: item.nombre, telefono: item.telefono ?? '-',

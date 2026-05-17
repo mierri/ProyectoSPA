@@ -8,6 +8,7 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { NotificationService } from '../../../../core';
+import type { ClientDetail } from '../../models';
 import { ClientsVehiclesService } from '../../services';
 
 @Component({
@@ -25,7 +26,7 @@ export class ClientDetailContentComponent {
 	private readonly _params = toSignal(this._route.paramMap, { initialValue: this._route.snapshot.paramMap });
 
 	protected readonly clientId = computed(() => this._params().get('id') ?? '');
-	protected readonly detail = computed(() => this._service.getClientById(this.clientId()));
+	protected readonly detail = signal<ClientDetail | undefined>(undefined);
 	protected readonly totalAdeudo = computed(() => this.detail()?.workOrders.filter((ot) => ot.paymentState === 'Pendiente').length ?? 0);
 	protected readonly editFicha = signal(false);
 	protected readonly nombreEdit = signal('');
@@ -34,6 +35,18 @@ export class ClientDetailContentComponent {
 	protected readonly rfcEdit = signal('');
 
 	constructor() {
+		effect(() => {
+			const id = this.clientId();
+			if (!id) {
+				return;
+			}
+
+			this.detail.set(this._service.getClientById(id));
+			this._service.loadClientDetail(id, (client) => {
+				this.detail.set(client);
+			});
+		});
+
 		effect(() => {
 			const client = this.detail();
 			if (!client) {
