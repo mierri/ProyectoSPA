@@ -11,7 +11,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideTrash2, lucidePlus, lucideDownload } from '@ng-icons/lucide';
 import { NotificationService, PdfMakerService } from '../../../../core';
 import { PricesService } from '../../services/prices.service';
-import { ServicioAutomotriz, ServicioTorno, QuoteLineItem } from '../../models/price.model';
+import { Servicio, ServicioAutomotriz, ServicioTorno, QuoteLineItem } from '../../models/price.model';
 
 @Component({
   selector: 'spartan-price-quoter',
@@ -39,18 +39,16 @@ export class PriceQuoterComponent {
 
   public readonly servicios = computed(() => this.service.getServicios());
 
-  protected readonly selectedService = signal<number>(0);
+  protected readonly selectedService = signal<Servicio | null>(null);
   protected readonly selectedQuantity = signal<number>(1);
   protected readonly quoteItems = signal<QuoteLineItem[]>([]);
 
   protected readonly selectedServiceLabel = computed(() => {
-    const id = this.selectedService();
-    if (!id) return '';
-    const s = this.servicios().find(sv => sv.id === id);
-    if (!s) return '';
-    return 'concepto' in s
-      ? (s as ServicioAutomotriz).concepto
-      : (s as ServicioTorno).tamano;
+    const service = this.selectedService();
+    if (!service) return '';
+    return 'concepto' in service
+      ? (service as ServicioAutomotriz).concepto
+      : (service as ServicioTorno).tamano;
   });
 
   protected readonly subtotal = computed(() => {
@@ -65,32 +63,43 @@ export class PriceQuoterComponent {
     return this.roundPrice(this.subtotal() + this.taxAmount());
   });
 
+  protected readonly serviceItemToString = (item: unknown): string => {
+    const service = item as Servicio | null;
+    if (!service) return '';
+    return 'concepto' in service ? service.concepto : service.tamano;
+  };
+
+  protected readonly isSameService = (service: Servicio | null, value: Servicio | null): boolean => {
+    return !!service && !!value && service.id === value.id;
+  };
+
+  protected onServiceSelected(value: unknown): void {
+    this.selectedService.set((value as Servicio | null) ?? null);
+  }
+
   protected addServiceToQuote(): void {
-    const serviceId = this.selectedService();
-    if (serviceId === 0) {
+    const service = this.selectedService();
+    if (!service) {
       this.notification.error('Selecciona un servicio');
       return;
     }
 
-    const servicio = this.servicios().find(s => s.id === serviceId);
-    if (!servicio) return;
-
     const quantity = Math.max(1, this.selectedQuantity());
     
     let priceStr = '';
-    if ('precioAuto' in servicio) {
-      priceStr = servicio['precioAuto'];
-    } else if ('precio' in servicio) {
-      priceStr = servicio['precio'];
+    if ('precioAuto' in service) {
+      priceStr = service['precioAuto'];
+    } else if ('precio' in service) {
+      priceStr = service['precio'];
     }
 
     const precioUnitario = this.parsePrice(priceStr);
     const subtotal = this.roundPrice(precioUnitario * quantity);
     
-    const nombreServicio = 'concepto' in servicio ? servicio['concepto'] : servicio['tamano'];
+    const nombreServicio = 'concepto' in service ? service['concepto'] : service['tamano'];
 
     const item: QuoteLineItem = {
-      id: `${serviceId}-${Date.now()}`,
+      id: `${service.id}-${Date.now()}`,
       nombre: nombreServicio,
       tipo: 'servicio',
       cantidad: quantity,
@@ -99,7 +108,7 @@ export class PriceQuoterComponent {
     };
 
     this.quoteItems.update(items => [...items, item]);
-    this.selectedService.set(0);
+    this.selectedService.set(null);
     this.selectedQuantity.set(1);
     this.notification.success(`${nombreServicio} agregado a la cotización`);
   }

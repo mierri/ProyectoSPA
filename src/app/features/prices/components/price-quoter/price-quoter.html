@@ -6,16 +6,19 @@
       <div class="selection-grid">
         <div class="form-group">
           <label class="text-sm font-medium">Selecciona un Servicio</label>
-          <hlm-select [value]="selectedService().toString()" (valueChange)="selectedService.set(+($event || 0))">
+          <hlm-select
+            [value]="selectedService()"
+            [itemToString]="serviceItemToString"
+            [isItemEqualToValue]="isSameService"
+            (valueChange)="onServiceSelected($event)"
+          >
             <hlm-select-trigger>
               <hlm-select-value placeholder="Elige un servicio..." />
             </hlm-select-trigger>
             <hlm-select-content *hlmSelectPortal>
               <hlm-select-group>
                 @for (servicio of servicios(); track servicio.id) {
-                  <hlm-select-item [value]="servicio.id.toString()">
-                    {{ ($any(servicio)).concepto || ($any(servicio)).tamano }}
-                  </hlm-select-item>
+                  <hlm-select-item [value]="servicio">{{ ($any(servicio)).concepto || ($any(servicio)).tamano }}</hlm-select-item>
                 }
               </hlm-select-group>
             </hlm-select-content>

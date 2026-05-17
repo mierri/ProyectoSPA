@@ -7,7 +7,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmLabelImports } from '@spartan-ng/helm/label';
-import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { NotificationService } from '../../../../core';
 
@@ -18,9 +18,11 @@ interface SystemUser {
 	role: string;
 }
 
+type RoleApiItem = string | { name?: string | null };
+
 @Component({
 	selector: 'spartan-roles-users-settings',
-	imports: [HlmCardImports, HlmTableImports, HlmButtonImports, HlmInputImports, HlmLabelImports, HlmNativeSelectImports, NgIcon, FormsModule],
+	imports: [HlmCardImports, HlmTableImports, HlmButtonImports, HlmInputImports, HlmLabelImports, HlmSelectImports, NgIcon, FormsModule],
 	providers: [provideIcons({ lucideTrash2, lucideX })],
 	templateUrl: './roles-users-settings.component.html',
 	styleUrl: './roles-users-settings.component.css',
@@ -70,10 +72,17 @@ export class RolesUsersSettingsComponent implements OnInit {
 	}
 
 	private loadRoles(): void {
-		this._http.get<{ data: string[] }>('/api/v1/roles').subscribe({
+		this._http.get<{ data: RoleApiItem[] }>('/api/v1/roles').subscribe({
 			next: (res) => {
-				this.roles.set(res.data);
-				if (res.data.length > 0) this.newRole.set(res.data[0]);
+				const normalizedRoles = (res.data ?? [])
+					.map((role) => (typeof role === 'string' ? role : (role?.name ?? '')))
+					.filter((role) => role.length > 0);
+				this.roles.set(normalizedRoles);
+				if (normalizedRoles.length > 0) this.newRole.set(normalizedRoles[0]);
+			},
+			error: () => {
+				this.roles.set([]);
+				this._notification.error('No se pudieron cargar los roles.');
 			},
 		});
 	}

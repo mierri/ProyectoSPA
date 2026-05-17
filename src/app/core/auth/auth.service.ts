@@ -46,6 +46,16 @@ export class AuthService {
     this._isAuthenticated.set(false);
   }
 
+  public setCurrentUser(user: AuthUser | null): void {
+    if (user) {
+      localStorage.setItem(AuthService.USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(AuthService.USER_KEY);
+    }
+
+    this._user.set(user);
+  }
+
   public getToken(): string | null {
     return localStorage.getItem(AuthService.TOKEN_KEY);
   }
